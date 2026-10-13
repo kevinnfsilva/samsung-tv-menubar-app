@@ -2,8 +2,11 @@
 
 let settingsReceived = false;
 let updateReceived = false;
+// False until the first state and settings have been drawn: the first draw must not animate a style change.
+let shown = false;
 
 function render() {
+  renderStyle({ animate: shown });
   renderMain();
   renderSettings();
   renderUpdate();
@@ -76,6 +79,7 @@ window.ac.onUpdate((next) => {
 });
 
 document.documentElement.dataset.platform = window.ac.platform;
+startStyle();
 if (IS_MAC) {
   byId('autostart-title').dataset.i18n = 'autostart.mac';
   byId('autostart').dataset.i18nAriaLabel = 'autostart.mac';
@@ -94,4 +98,5 @@ window.ac.getState().then((initial) => {
   if (!updateReceived) applyUpdate(initial.update);
   if (initial.locale) setLocale(initial.locale);
   render();
+  shown = true;
 });

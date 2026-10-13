@@ -1,0 +1,522 @@
+/* The drawn remote control: a slim body in soft graphite (dark) or silver (light), raised keys that dip when pressed, a
+   recessed ring with four segments around OK, two rockers, three app keys and a light that blinks when a command goes out.
+   It is drawn at one size; page-remote.js shrinks it with `zoom` to fit the room of the page. */
+
+.page-remote {
+  align-items: center;
+  gap: 0;
+  padding: 2px 14px 6px;
+}
+
+.remote-fit {
+  display: flex;
+  flex: none;
+  margin: auto 0;
+  align-items: flex-start;
+  justify-content: center;
+  width: 100%;
+}
+
+.remote-scale {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.remote {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  width: 164px;
+  padding: 18px 0 16px;
+  border-radius: 58px;
+  background: linear-gradient(168deg, var(--rm-body-top) 0%, var(--rm-body-mid) 46%, var(--rm-body-low) 100%);
+  box-shadow:
+    inset 0 1px 0 var(--rm-edge),
+    inset 0 0 0 1px var(--rm-line),
+    inset 0 -14px 22px -10px rgba(0, 0, 0, 0.28),
+    var(--rm-body-shadow);
+  color: var(--rm-ink);
+}
+
+/* The side light of a moulded body: a soft sheen down the left, a shade down the right */
+.remote::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background:
+    linear-gradient(90deg, rgba(255, 255, 255, 0.1), transparent 24%, transparent 74%, rgba(0, 0, 0, 0.16)),
+    radial-gradient(90% 26% at 50% 0%, rgba(255, 255, 255, 0.12), transparent);
+  pointer-events: none;
+}
+
+.rm-led {
+  position: absolute;
+  top: 8px;
+  left: 50%;
+  width: 5px;
+  height: 5px;
+  margin-left: -2.5px;
+  border-radius: 50%;
+  background: var(--rm-led-off);
+  box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.35);
+}
+
+.rm-led::before,
+.rm-led::after {
+  content: '';
+  position: absolute;
+  border-radius: 50%;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.rm-led::before {
+  inset: 0;
+  background: var(--accent);
+}
+
+.rm-led::after {
+  inset: -7px;
+  background: radial-gradient(circle, color-mix(in srgb, var(--accent) 70%, transparent), transparent 68%);
+}
+
+.rm-led.blink::before,
+.rm-led.blink::after {
+  animation: led-blink 0.42s var(--ease-out) both;
+}
+
+@keyframes led-blink {
+  0% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.5);
+  }
+}
+
+/* Keys: a raised surface; a press dips it, darkens it and lets it spring back. */
+.rm-key,
+.rm-ok,
+.rm-rocker,
+.rm-app {
+  position: relative;
+  isolation: isolate;
+  background: linear-gradient(180deg, var(--rm-key-top), var(--rm-key-low));
+  box-shadow:
+    inset 0 1px 0 var(--rm-key-edge),
+    inset 0 0 0 1px var(--rm-line),
+    var(--rm-key-shadow);
+  color: var(--rm-ink);
+  transition: transform 0.5s var(--spring-pop);
+}
+
+.rm-key::after,
+.rm-ok::after,
+.rm-rk::after,
+.rm-rk-mid::after,
+.rm-app::after,
+.rm-dir::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: var(--rm-press);
+  opacity: 0;
+  transition: opacity 0.25s var(--ease-out);
+  pointer-events: none;
+}
+
+.rm-key:hover::after,
+.rm-app:hover::after,
+.rm-dir:hover::after {
+  opacity: 0.35;
+}
+
+.rm-key:active,
+.rm-key.pressed,
+.rm-app:active,
+.rm-app.pressed {
+  transform: translateY(1px) scale(0.93);
+  transition-duration: 0.08s;
+}
+
+.rm-key:active::after,
+.rm-key.pressed::after,
+.rm-app:active::after,
+.rm-app.pressed::after,
+.rm-dir:active::after,
+.rm-dir.pressed::after,
+.rm-rk:active::after,
+.rm-rk.pressed::after,
+.rm-rk-mid:active::after,
+.rm-rk-mid.pressed::after {
+  opacity: 1;
+  transition-duration: 0.06s;
+}
+
+.rm-key {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  font-size: 16px;
+}
+
+.rm-power {
+  margin-top: 4px;
+}
+
+.page-remote[data-power='on'] .rm-power svg {
+  color: var(--accent);
+}
+
+/* The ring: recessed, cut in four by hairlines along the diagonals; each segment is a key of its own. */
+.rm-pad {
+  position: relative;
+  flex: none;
+  width: 116px;
+  height: 116px;
+  overflow: hidden;
+  border-radius: 50%;
+  background:
+    linear-gradient(45deg, transparent calc(50% - 0.5px), var(--rm-line) calc(50% - 0.5px), var(--rm-line) calc(50% + 0.5px), transparent calc(50% + 0.5px)),
+    linear-gradient(135deg, transparent calc(50% - 0.5px), var(--rm-line) calc(50% - 0.5px), var(--rm-line) calc(50% + 0.5px), transparent calc(50% + 0.5px)),
+    radial-gradient(circle at 50% 36%, var(--rm-ring-hi), var(--rm-ring-low));
+  box-shadow:
+    inset 0 2px 4px rgba(0, 0, 0, 0.32),
+    inset 0 0 0 1px var(--rm-line),
+    0 1px 0 var(--rm-key-edge);
+}
+
+.rm-dir {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  font-size: 18px;
+  color: var(--rm-ink);
+  isolation: isolate;
+}
+
+.rm-dir svg {
+  transition: transform 0.5s var(--spring-pop);
+}
+
+.rm-dir:active svg,
+.rm-dir.pressed svg {
+  transform: scale(0.82);
+  transition-duration: 0.08s;
+}
+
+.rm-up {
+  clip-path: polygon(50% 50%, 0 0, 100% 0);
+  place-items: start center;
+  padding-top: 9px;
+}
+
+.rm-right {
+  clip-path: polygon(50% 50%, 100% 0, 100% 100%);
+  place-items: center end;
+  padding-right: 9px;
+}
+
+.rm-down {
+  clip-path: polygon(50% 50%, 100% 100%, 0 100%);
+  place-items: end center;
+  padding-bottom: 9px;
+}
+
+.rm-left {
+  clip-path: polygon(50% 50%, 0 100%, 0 0);
+  place-items: center start;
+  padding-left: 9px;
+}
+
+.rm-ok {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  margin: -23px 0 0 -23px;
+  border-radius: 50%;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  transition:
+    transform 0.5s var(--spring-pop),
+    background-color 0.2s,
+    color 0.2s;
+}
+
+.rm-ok:active,
+.rm-ok.pressed {
+  transform: scale(0.92);
+  transition-duration: 0.08s;
+  color: var(--on-accent);
+  background: var(--accent-fill);
+}
+
+.rm-row {
+  display: flex;
+  gap: 13px;
+}
+
+.rm-playpause {
+  grid-auto-flow: column;
+  gap: 0;
+  font-size: 12px;
+}
+
+.rm-playpause svg + svg {
+  margin-left: -1px;
+}
+
+.rm-rockers {
+  display: flex;
+  gap: 13px;
+}
+
+/* A rocker: two halves and a middle. Pressing a half tilts the whole key toward it. */
+.rm-rocker {
+  display: grid;
+  grid-template-rows: 1fr 20px 1fr;
+  width: 52px;
+  height: 80px;
+  overflow: hidden;
+  border-radius: 26px;
+  transform-origin: 50% 50%;
+}
+
+.rm-rocker:has(.rm-rk-up:active, .rm-rk-up.pressed) {
+  transform: perspective(180px) rotateX(5deg) scale(0.98);
+  transition-duration: 0.08s;
+}
+
+.rm-rocker:has(.rm-rk-down:active, .rm-rk-down.pressed) {
+  transform: perspective(180px) rotateX(-5deg) scale(0.98);
+  transition-duration: 0.08s;
+}
+
+.rm-rk,
+.rm-rk-mid {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  place-items: center;
+  color: var(--rm-ink);
+}
+
+.rm-rk {
+  font-size: 17px;
+}
+
+.rm-rk-up {
+  place-items: end center;
+  padding-bottom: 2px;
+}
+
+.rm-rk-down {
+  place-items: start center;
+  padding-top: 2px;
+}
+
+.rm-rk:hover::after {
+  opacity: 0.35;
+}
+
+.rm-rk svg,
+.rm-rk-mid svg {
+  transition: transform 0.5s var(--spring-pop);
+}
+
+.rm-rk:active svg,
+.rm-rk.pressed svg,
+.rm-rk-mid:active svg,
+.rm-rk-mid.pressed svg {
+  transform: scale(0.8);
+  transition-duration: 0.08s;
+}
+
+.rm-rk-mid,
+.rm-rk-label {
+  display: grid;
+  place-items: center;
+  font-size: 12px;
+  color: var(--rm-ink-2);
+  box-shadow:
+    inset 0 var(--hair) 0 var(--rm-line),
+    inset 0 calc(var(--hair) * -1) 0 var(--rm-line);
+}
+
+.rm-rk-label {
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+}
+
+/* The speaker in the middle of the volume rocker: crossed while muted */
+.rm-rk-mid > svg {
+  grid-area: 1 / 1;
+  transition:
+    opacity 0.25s var(--ease-out),
+    transform 0.45s var(--spring-pop);
+}
+
+.rm-rk-mid .icon-muted,
+.rm-rk-mid[aria-checked='true'] .icon-sound {
+  opacity: 0;
+  transform: scale(0.5);
+}
+
+.rm-rk-mid[aria-checked='true'] .icon-muted {
+  opacity: 1;
+  transform: none;
+}
+
+.rm-rk-mid[aria-checked='true'] {
+  color: var(--rm-ink);
+}
+
+.rm-apps {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  width: 118px;
+}
+
+.rm-app {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  height: 24px;
+  padding: 0 8px 0 4px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+}
+
+.rm-app .badge {
+  width: 17px;
+  height: 17px;
+  border-radius: 5px;
+  font-size: 9px;
+}
+
+/* The keys that stay off the remote itself: Menu, Source, Exit, Rewind, Stop and Fast forward */
+.rm-extra {
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  border-radius: 16px;
+  background: var(--module);
+  box-shadow:
+    inset 0 var(--hair) 0 var(--edge-top),
+    inset 0 0 0 var(--hair) var(--edge-ring),
+    var(--module-shadow);
+}
+
+.rm-more {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 26px;
+  border-radius: 10px;
+  font-size: 15px;
+  color: var(--ink-2);
+  transition:
+    background-color 0.2s,
+    color 0.2s,
+    transform 0.5s var(--spring-pop);
+}
+
+.rm-more:hover {
+  color: var(--ink);
+  background: var(--module);
+}
+
+.rm-more:active,
+.rm-more.pressed {
+  color: var(--ink);
+  background: var(--module-press);
+  transform: scale(0.9);
+  transition-duration: 0.08s;
+}
+
+/* App badges (shared with the favourites, the Apps tab and the remote's own app keys) */
+.badge {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 13px;
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  background: var(--badge-bg, var(--module));
+  color: var(--badge-fg, var(--ink));
+  box-shadow: inset 0 0 0 var(--hair) var(--badge-ring);
+}
+
+.badge svg {
+  display: block;
+  width: 60%;
+  height: 60%;
+  fill: var(--badge-fg);
+}
+
+.badge[data-brand='netflix'] {
+  --badge-bg: var(--badge-netflix-bg);
+  --badge-fg: var(--badge-netflix-fg);
+}
+
+.badge[data-brand='netflix'] svg {
+  width: 56%;
+  height: 56%;
+}
+
+.badge[data-brand='youtube'] svg {
+  width: 80%;
+  height: 80%;
+}
+
+/* On the remote's small keys the marks get a little more of their tile so that they stay crisp */
+.rm-app .badge[data-brand='netflix'] svg {
+  width: 68%;
+  height: 68%;
+}
+
+.rm-app .badge[data-brand='youtube'] svg {
+  width: 88%;
+  height: 88%;
+}
+
+.badge[data-brand='youtube'] {
+  --badge-bg: var(--badge-youtube-bg);
+  --badge-fg: var(--badge-youtube-fg);
+}
+
+.badge[data-brand='prime'] {
+  --badge-bg: var(--badge-prime-bg);
+  --badge-fg: var(--badge-prime-fg);
+}
+
+.badge[data-brand='disney'] {
+  --badge-bg: var(--badge-disney-bg);
+  --badge-fg: var(--badge-disney-fg);
+  font-size: 19px;
+}

@@ -37,3 +37,28 @@ function timerContent() {
 byId('open-timer').addEventListener('click', (event) => {
   togglePopup(event.currentTarget, { role: 'menu', label: () => t('timer.title'), align: 'right', build: timerContent });
 });
+
+/* The timer as a card of the Rotinas tab: the same choices as the footer popup, laid out as chips. */
+
+function renderTimerCard() {
+  const { timer } = settings;
+  const acao = view?.device?.ligado ? 'desliga' : 'liga';
+  byId('timer-note').textContent = timer ? timerText(timer) : t('timer.none');
+  byId('timer-cancel').hidden = !timer;
+  byId('timer-chips-label').textContent = t(acao === 'liga' ? 'timer.cardOn' : 'timer.cardOff');
+  const chips = byId('timer-chips');
+  const signature = JSON.stringify([acao, activeLocale]);
+  if (chips.dataset.signature !== signature) {
+    chips.dataset.signature = signature;
+    chips.replaceChildren(
+      ...TIMER_MINUTES.map((minutos) => {
+        const chip = el('button', { type: 'button', class: 'chip', 'data-minutes': String(minutos) }, durationLabel(minutos));
+        chip.addEventListener('click', () => refused(window.ac.setTimer(acao, minutos), 'timer.failed'));
+        return chip;
+      }),
+    );
+  }
+  for (const chip of chips.children) chip.disabled = !usable();
+}
+
+byId('timer-cancel').addEventListener('click', () => window.ac.clearTimer());

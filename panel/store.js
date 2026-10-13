@@ -8,6 +8,7 @@ const DEFAULT_SETTINGS = {
   agendas: [],
   idioma: 'auto',
   atualizacoes: true,
+  estilo: 'compacto',
 };
 
 let view = null;

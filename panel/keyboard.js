@@ -5,6 +5,7 @@ const SPACE_CONTROLS =
 const CLICKABLE = 'button, input, select, textarea, a[href]';
 
 const REMOTE_KEYS = { ArrowUp: 'UP', ArrowDown: 'DOWN', ArrowLeft: 'LEFT', ArrowRight: 'RIGHT', Backspace: 'BACK' };
+const VOLUME_KEYS = { '+': 1, '=': 1, '-': -1, _: -1 };
 
 const SHORTCUT_GUARD_MS = 700;
 
@@ -45,12 +46,30 @@ function handleMainKey(event, target) {
   if (!event.repeat) send('ligado', !view.device.ligado);
 }
 
-// Controle: the arrows are the d-pad, Enter is OK and Backspace is Back. A control of the page keeps Enter for its own click.
+// Controle: the arrows are the d-pad, Enter is OK, Backspace is Back, Space plays or pauses and + / - move the volume, M
+// mutes. A control of the page keeps Enter and Space for its own click.
 function handleRemoteKey(event, target) {
   if (event.key === 'Enter') {
     if (target.closest(CLICKABLE)) return;
     event.preventDefault();
     sendKey('OK');
+    return;
+  }
+  if (event.key === ' ') {
+    if (target.closest(SPACE_CONTROLS)) return;
+    event.preventDefault();
+    if (!event.repeat) sendPlayPause();
+    return;
+  }
+  if (event.key in VOLUME_KEYS) {
+    event.preventDefault();
+    sendVolumeKey(VOLUME_KEYS[event.key]);
+    return;
+  }
+  if (event.key.toLowerCase() === 'm') {
+    if (target.matches(TEXT_CONTROLS)) return;
+    event.preventDefault();
+    if (!event.repeat) sendMute();
     return;
   }
   const key = REMOTE_KEYS[event.key];
@@ -60,7 +79,9 @@ function handleRemoteKey(event, target) {
 }
 
 function handleShortcutKey(event) {
-  if (event.defaultPrevented || event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
+  // Shift only matters for "+" (and "_"), the volume keys of the remote.
+  if (event.defaultPrevented || event.altKey || event.ctrlKey || event.metaKey) return;
+  if (event.shiftKey && !(event.key in VOLUME_KEYS)) return;
   if (keysGuarded() || popupOwner || !usable()) return;
   const target = event.target instanceof Element ? event.target : document.body;
   if (onRemotePage()) handleRemoteKey(event, target);

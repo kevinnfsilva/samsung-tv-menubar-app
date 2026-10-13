@@ -1,6 +1,6 @@
 /* Settings pages, the Controle page and shared form controls. Core layout and tokens live in styles.css. */
 
-/* Page stack */
+/* Page stack: a page slides in from the right with a fade while the one below drifts left and fades away. */
 
 .pages {
   position: relative;
@@ -18,10 +18,11 @@
   padding: 2px 14px 18px;
   overflow-y: auto;
   overscroll-behavior: contain;
-  transform: translateX(104%);
+  opacity: 0;
+  transform: translateX(100%);
   transition:
-    transform 0.34s var(--ease-out),
-    opacity 0.34s;
+    transform 0.5s var(--spring),
+    opacity 0.3s var(--ease-out);
 }
 
 .page > * {
@@ -29,12 +30,13 @@
 }
 
 .page.active {
+  opacity: 1;
   transform: none;
 }
 
 .page.behind {
   opacity: 0;
-  transform: translateX(-16%);
+  transform: translateX(-30%);
 }
 
 .page::-webkit-scrollbar {
@@ -58,12 +60,18 @@
 .row-plain {
   width: 100%;
   text-align: left;
-  transition: background 0.2s;
+  transition: background-color 0.2s;
 }
 
 .row-link:hover,
 .row-plain:hover {
-  background: var(--wash);
+  background: var(--module);
+}
+
+.row-link:active,
+.row-plain:active {
+  background: var(--module-hover);
+  transition-duration: 0.08s;
 }
 
 .row-link:focus-visible,
@@ -83,7 +91,7 @@
 
 .row-chevron {
   font-size: 16px;
-  color: var(--dim);
+  color: var(--ink-3);
 }
 
 .row-wide {
@@ -115,26 +123,40 @@
 }
 
 .row-unit {
-  color: var(--porcelain);
+  color: var(--ink);
 }
 
 .row-problem {
-  color: var(--signal);
+  color: var(--ink);
 }
 
+/* The chosen row of a list carries a check, as in a macOS list; the radio is only its slot. */
 .radio {
+  position: relative;
   width: 20px;
   height: 20px;
-  border-radius: 50%;
-  box-shadow: inset 0 0 0 2px var(--dim);
-  transition:
-    background 0.2s,
-    box-shadow 0.2s;
 }
 
-.row-plain[aria-checked='true'] .radio {
-  background: radial-gradient(circle, var(--accent) 0 5px, transparent 5.5px);
-  box-shadow: inset 0 0 0 2px var(--accent);
+.radio::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 6px;
+  width: 6px;
+  height: 11px;
+  border: solid var(--accent);
+  border-width: 0 2.25px 2.25px 0;
+  border-radius: 1px;
+  opacity: 0;
+  transform: rotate(40deg) scale(0.4);
+  transition:
+    opacity 0.2s,
+    transform 0.5s var(--spring-pop);
+}
+
+.row-plain[aria-checked='true'] .radio::after {
+  opacity: 1;
+  transform: rotate(40deg);
 }
 
 /* Buttons and fields */
@@ -149,21 +171,25 @@
   border-radius: 999px;
   font-size: 14px;
   font-weight: 500;
-  color: var(--porcelain);
-  background: var(--slate-raised);
-  box-shadow: inset 0 0 0 1px var(--wash-strong);
+  color: var(--ink);
+  background: var(--module);
+  box-shadow:
+    inset 0 var(--hair) 0 var(--edge-top),
+    inset 0 0 0 var(--hair) var(--edge-ring),
+    var(--module-shadow);
   transition:
-    background 0.2s,
+    background-color 0.2s,
     opacity 0.2s,
-    transform 0.12s;
+    transform 0.45s var(--spring-pop);
 }
 
 .btn:hover:not(:disabled) {
-  background: color-mix(in srgb, var(--slate-raised) 82%, var(--hover-mix));
+  background: var(--module-hover);
 }
 
 .btn:active:not(:disabled) {
-  transform: scale(0.97);
+  transform: scale(0.96);
+  transition-duration: 0.12s;
 }
 
 .btn:disabled {
@@ -171,13 +197,15 @@
 }
 
 .btn-primary {
-  color: var(--on-tint);
-  background: var(--tint);
-  box-shadow: none;
+  color: var(--on-accent);
+  background: var(--accent-fill);
+  box-shadow:
+    inset 0 var(--hair) 0 rgba(255, 255, 255, 0.3),
+    0 1px 2px rgba(0, 0, 0, 0.18);
 }
 
 .btn-primary:hover:not(:disabled) {
-  background: color-mix(in srgb, var(--tint) 84%, var(--hover-mix));
+  background: color-mix(in srgb, var(--accent-fill) 88%, white);
 }
 
 .btn-small {
@@ -194,56 +222,78 @@
   height: 32px;
   padding: 0 10px;
   border: 0;
-  border-radius: 10px;
+  border-radius: 9px;
   font: inherit;
   font-size: 14px;
-  color: var(--porcelain);
-  background: var(--field);
-  box-shadow: inset 0 0 0 1px var(--wash-strong);
+  color: var(--ink);
+  background: var(--well);
+  box-shadow: inset 0 0 0 var(--hair) var(--edge-ring);
   cursor: text;
   user-select: text;
 }
 
 .field::placeholder {
-  color: var(--dim);
+  color: var(--ink-3);
 }
 
 .field[type='time'] {
   font-variant-numeric: tabular-nums;
 }
 
+.field::-webkit-calendar-picker-indicator {
+  opacity: 0.7;
+}
+
+:root[data-platform='darwin'] .field::-webkit-calendar-picker-indicator {
+  opacity: 0.6;
+}
+
+/* Segmented control: a well with a raised segment that glides to the choice. */
 .segmented {
+  position: relative;
   display: flex;
   gap: 2px;
-  padding: 3px;
+  padding: 2px;
   border-radius: 999px;
-  background: var(--field);
-  box-shadow: inset 0 0 0 1px var(--hairline);
+  background: var(--well);
+  box-shadow: inset 0 0 0 var(--hair) var(--edge-ring);
 }
 
 .segmented button {
+  position: relative;
   flex: 1;
   min-width: 0;
   height: 28px;
   padding: 0 8px;
   border-radius: 999px;
   font-size: 13px;
-  color: var(--fog);
+  font-weight: 500;
+  color: var(--ink-2);
   white-space: nowrap;
   transition:
-    background 0.2s,
-    color 0.2s;
+    background-color 0.25s,
+    color 0.2s,
+    box-shadow 0.25s,
+    transform 0.45s var(--spring-pop);
 }
 
 .segmented button:hover {
-  color: var(--porcelain);
+  color: var(--ink);
+}
+
+.segmented button:active {
+  transform: scale(0.96);
+  transition-duration: 0.1s;
 }
 
 .segmented button[aria-pressed='true'],
 .chip[aria-pressed='true'] {
-  color: var(--porcelain);
-  background: color-mix(in srgb, var(--accent) 26%, var(--slate-raised));
-  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 45%, transparent);
+  color: var(--ink);
+  background: var(--raised);
+  box-shadow:
+    inset 0 var(--hair) 0 var(--edge-top),
+    0 1px 3px rgba(0, 0, 0, 0.16),
+    0 0 0 var(--hair) var(--edge-ring);
 }
 
 .chips {
@@ -257,12 +307,20 @@
   padding: 0 12px;
   border-radius: 999px;
   font-size: 13px;
-  color: var(--fog);
-  background: var(--field);
-  box-shadow: inset 0 0 0 1px var(--hairline);
+  font-weight: 500;
+  color: var(--ink-2);
+  background: var(--well);
+  box-shadow: inset 0 0 0 var(--hair) var(--edge-ring);
   transition:
-    background 0.2s,
-    color 0.2s;
+    background-color 0.25s,
+    color 0.2s,
+    box-shadow 0.25s,
+    transform 0.45s var(--spring-pop);
+}
+
+.chip:active {
+  transform: scale(0.94);
+  transition-duration: 0.1s;
 }
 
 #schedule-days .chip {
@@ -273,13 +331,13 @@
 
 .keys {
   padding: 3px 8px;
-  border-radius: 8px;
+  border-radius: 7px;
   font: inherit;
   font-size: 13px;
   letter-spacing: 0.06em;
-  color: var(--porcelain);
-  background: var(--field);
-  box-shadow: inset 0 0 0 1px var(--hairline);
+  color: var(--ink);
+  background: var(--well);
+  box-shadow: inset 0 0 0 var(--hair) var(--edge-ring);
 }
 
 /* Page furniture */
@@ -291,7 +349,7 @@
   gap: 10px;
   padding: 40px 0;
   font-size: 13px;
-  color: var(--fog);
+  color: var(--ink-2);
 }
 
 .spinning {
@@ -304,14 +362,14 @@
   padding: 0 4px;
   font-size: 13px;
   line-height: 1.45;
-  color: var(--fog);
+  color: var(--ink-2);
 }
 
 .section-title {
   margin: 6px 4px -4px;
   font-size: 12px;
-  font-weight: 500;
-  color: var(--fog);
+  font-weight: 600;
+  color: var(--ink-2);
 }
 
 /* Schedules */
@@ -331,144 +389,9 @@
   font-variant-numeric: tabular-nums;
 }
 
-.schedule-row[data-active='false'] :is(.schedule-time, .row-text) {
-  opacity: 0.55;
-}
-
-/* Controle: a d-pad, Back / Home / Menu, playback and the apps */
-
-.page-remote {
-  gap: 14px;
-}
-
-.dpad {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 6px;
-  width: 200px;
-  height: 200px;
-  margin: 4px auto 0;
-  padding: 8px;
-  border-radius: 50%;
-  background: var(--slate);
-  box-shadow: inset 0 0 0 1px var(--hairline);
-}
-
-.dpad > span {
-  display: block;
-}
-
-.dpad-key,
-.dpad-ok {
-  display: grid;
-  place-items: center;
-  border-radius: 50%;
-  font-size: 20px;
-  color: var(--porcelain);
-  background: var(--slate-raised);
-  box-shadow: inset 0 0 0 1px var(--wash-strong);
-  transition:
-    background 0.15s,
-    transform 0.12s;
-}
-
-.dpad-key:hover:not(:disabled),
-.dpad-ok:hover:not(:disabled) {
-  background: color-mix(in srgb, var(--slate-raised) 82%, var(--hover-mix));
-}
-
-.dpad-key:active:not(:disabled),
-.dpad-ok:active:not(:disabled) {
-  transform: scale(0.94);
-}
-
-.dpad-ok {
-  font-size: 15px;
-  font-weight: 600;
-  color: var(--on-tint);
-  background: var(--tint);
-  box-shadow: none;
-}
-
-.dpad-ok:hover:not(:disabled) {
-  background: color-mix(in srgb, var(--tint) 84%, var(--hover-mix));
-}
-
-.remote-row {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
-}
-
-.remote-key {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 4px;
-  height: 56px;
-  border-radius: 14px;
-  font-size: 12px;
-  color: var(--porcelain);
-  background: var(--slate);
-  box-shadow: inset 0 0 0 1px var(--hairline);
-  transition: background 0.2s;
-}
-
-.remote-key svg.lucide {
-  font-size: 18px;
-}
-
-.remote-key:hover:not(:disabled) {
-  background: var(--slate-raised);
-}
-
-.playback {
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  overflow: hidden;
-  border-radius: 14px;
-  background: var(--slate);
-  box-shadow: inset 0 0 0 1px var(--hairline);
-}
-
-.playback-key {
-  display: grid;
-  place-items: center;
-  height: 46px;
-  font-size: 17px;
-  color: var(--porcelain);
-  transition: background 0.2s;
-}
-
-.playback-key + .playback-key {
-  box-shadow: inset 1px 0 0 var(--hairline);
-}
-
-.playback-key:hover {
-  background: var(--wash-cell);
-}
-
-.apps {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
-}
-
-.app-key {
-  height: 46px;
-  padding: 0 12px;
-  border-radius: 14px;
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--porcelain);
-  background: var(--slate);
-  box-shadow: inset 0 0 0 1px var(--hairline);
-  transition: background 0.2s;
-}
-
-.app-key:hover:not(:disabled) {
-  background: var(--slate-raised);
+/* A schedule that is off steps back in ink, not in opacity: it stays readable */
+.schedule-row[data-active='false'] :is(.schedule-time, .row-title) {
+  color: var(--ink-2);
 }
 
 /* Without a reachable TV the remote shows, but does nothing */
@@ -477,15 +400,12 @@
   pointer-events: none;
 }
 
-.page-remote[data-usable='false'] .apps .app-key {
-  opacity: 0.4;
-  pointer-events: none;
-}
-
 @media (prefers-reduced-motion: reduce) {
-  .spinning,
-  .page {
+  .spinning {
     animation: none !important;
-    transition: none !important;
+  }
+
+  .page {
+    transition-duration: 0.01ms !important;
   }
 }

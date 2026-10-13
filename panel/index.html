@@ -7,338 +7,410 @@
     <title>TV Remote</title>
     <link rel="stylesheet" href="styles.css" />
     <link rel="stylesheet" href="pages.css" />
+    <link rel="stylesheet" href="remote.css" />
+    <link rel="stylesheet" href="tabs.css" />
   </head>
   <body>
-    <main class="panel" id="panel" data-loading="true" data-power="off" data-muted="false" data-login="ok">
-      <section class="view view-main">
-        <header class="top">
+    <div class="card-tint" aria-hidden="true"></div>
+    <main class="panel" id="panel" data-style="compacto" data-tab="home" data-loading="true" data-power="off" data-muted="false" data-login="ok">
+      <header class="top">
+        <div class="top-text">
           <span class="device-name" id="tv-name"></span>
-          <button class="power" id="power" type="button" data-i18n-aria-label="main.powerOn">
-            <i data-lucide="power"></i>
-          </button>
-        </header>
+          <span class="device-sub" id="tv-sub"></span>
+        </div>
+        <button class="power" id="power" type="button" data-i18n-aria-label="main.powerOn">
+          <i data-lucide="power"></i>
+        </button>
+      </header>
 
-        <figure class="hero" aria-hidden="true">
-          <svg class="scene" viewBox="0 0 372 156">
-            <defs>
-              <linearGradient id="g-screen" x1="0" y1="0" x2="0" y2="1">
-                <stop class="screen-top" offset="0" />
-                <stop class="screen-low" offset="1" />
-              </linearGradient>
-              <linearGradient id="g-bezel" x1="0" y1="0" x2="0" y2="1">
-                <stop class="bezel-top" offset="0" />
-                <stop class="bezel-low" offset="1" />
-              </linearGradient>
-              <linearGradient id="g-glass" x1="0" y1="0" x2="0" y2="1">
-                <stop class="glass-top" offset="0" stop-opacity="0.18" />
-                <stop class="glass-mid" offset="0.5" stop-opacity="0.04" />
-                <stop class="glass-low" offset="1" stop-opacity="0" />
-              </linearGradient>
-              <filter id="f-halo" x="-50%" y="-80%" width="200%" height="260%">
-                <feGaussianBlur stdDeviation="16" />
-              </filter>
-              <filter id="f-soft" x="-20%" y="-200%" width="140%" height="500%">
-                <feGaussianBlur stdDeviation="3" />
-              </filter>
-            </defs>
+      <div class="tabrow">
+        <nav class="tabbar" id="tabbar" data-i18n-aria-label="tab.list">
+          <span class="tab-highlight" aria-hidden="true"></span>
+          <button class="tab" id="tab-home" type="button" data-tab="home" aria-current="page" data-i18n-aria-label="tab.home" data-i18n-title="tab.home"><i data-lucide="tv"></i></button>
+          <button class="tab" id="tab-control" type="button" data-tab="control" data-i18n-aria-label="tab.control" data-i18n-title="tab.control"><i data-lucide="gamepad-2"></i></button>
+          <button class="tab" id="tab-apps" type="button" data-tab="apps" data-i18n-aria-label="tab.apps" data-i18n-title="tab.apps"><i data-lucide="layout-grid"></i></button>
+          <button class="tab" id="tab-routines" type="button" data-tab="routines" data-i18n-aria-label="tab.routines" data-i18n-title="tab.routines"><i data-lucide="calendar-clock"></i></button>
+          <button class="tab" id="tab-settings" type="button" data-tab="settings" data-i18n-aria-label="tab.settings" data-i18n-title="tab.settings"><i data-lucide="sliders-horizontal"></i></button>
+        </nav>
+        <button class="icon-button style-toggle" id="style-toggle-tabs" type="button" data-i18n-aria-label="style.toCompact" data-i18n-title="style.toCompact">
+          <i data-lucide="layout-panel-top"></i>
+        </button>
+      </div>
 
-            <ellipse class="halo" cx="186" cy="66" rx="150" ry="64" filter="url(#f-halo)" />
-            <ellipse class="contact" cx="186" cy="146" rx="92" ry="3.2" filter="url(#f-soft)" />
+      <div class="stage">
+        <section class="view view-main" id="view-main">
+          <figure class="hero" aria-hidden="true">
+            <svg class="scene" viewBox="0 0 372 156">
+              <defs>
+                <linearGradient id="g-lit" x1="0" y1="0" x2="0" y2="1">
+                  <stop class="lit-top" offset="0" />
+                  <stop class="lit-low" offset="1" />
+                </linearGradient>
+                <linearGradient id="g-sheen" x1="0" y1="0" x2="0.5" y2="1">
+                  <stop class="sheen-top" offset="0" />
+                  <stop class="sheen-low" offset="0.55" />
+                </linearGradient>
+                <filter id="f-soft" x="-20%" y="-200%" width="140%" height="500%">
+                  <feGaussianBlur stdDeviation="3" />
+                </filter>
+              </defs>
 
-            <rect class="bezel" x="52" y="6" width="268" height="120" rx="12" fill="url(#g-bezel)" />
-            <rect class="bezel-line" x="52.5" y="6.5" width="267" height="119" rx="11.5" />
-            <rect class="screen" x="62" y="14" width="248" height="104" rx="5" fill="url(#g-screen)" />
-            <path class="glass" d="M67 14 H305 Q310 14 310 19 V58 Q186 72 62 56 V19 Q62 14 67 14 Z" fill="url(#g-glass)" />
-            <circle class="chin" cx="186" cy="122" r="1.6" />
-            <path class="stand-neck" d="M170 126 H202 L210 139 H162 Z" />
-            <rect class="stand-base" x="124" y="139" width="124" height="5" rx="2.5" />
-          </svg>
-          <div class="tv-text">
-            <span class="tv-app" id="tv-app"></span>
-            <span class="tv-mode" id="tv-mode"></span>
+              <ellipse class="contact" cx="186" cy="148" rx="112" ry="2.6" filter="url(#f-soft)" />
+
+              <rect class="bezel" x="56.5" y="8.5" width="259" height="115" rx="11" />
+              <rect class="screen-off" x="61.5" y="13.5" width="249" height="105" rx="6.5" />
+              <rect class="screen-lit" x="61.5" y="13.5" width="249" height="105" rx="6.5" fill="url(#g-lit)" />
+              <path class="sheen" d="M68 13.5 H304 Q310.5 13.5 310.5 20 V52 Q186 74 61.5 52 V20 Q61.5 13.5 68 13.5 Z" />
+              <path class="stand" d="M92 123.5 H104 L96 137 H84 Z" />
+              <path class="stand" d="M268 123.5 H280 L288 137 H276 Z" />
+            </svg>
+            <div class="tv-text">
+              <span class="tv-app" id="tv-app"></span>
+              <span class="tv-mode" id="tv-mode"></span>
+            </div>
+          </figure>
+
+          <section class="login-card" id="login-card" aria-live="polite">
+            <div class="login-body" id="login-needed">
+              <span class="login-badge"><i data-lucide="user-round"></i></span>
+              <h2 class="login-title" data-i18n="login.title"></h2>
+              <p class="login-text" data-i18n="login.text"></p>
+              <p class="login-error" role="alert" hidden>
+                <span class="login-error-icon"></span>
+                <span class="login-error-text"></span>
+              </p>
+              <button class="btn btn-primary" id="login" type="button" data-i18n="login.button"></button>
+            </div>
+            <div class="login-body" id="login-waiting" hidden>
+              <span class="login-badge spinning"><i data-lucide="loader-circle"></i></span>
+              <h2 class="login-title" data-i18n="login.waiting"></h2>
+              <p class="login-error" role="alert" hidden>
+                <span class="login-error-icon"></span>
+                <span class="login-error-text"></span>
+              </p>
+              <button class="btn" id="cancel-login" type="button" data-i18n="login.cancel"></button>
+            </div>
+          </section>
+
+          <div class="now" id="now">
+            <span class="now-label" data-i18n="home.nowOnScreen"></span>
+            <span class="now-value" id="now-value"></span>
           </div>
-        </figure>
 
-        <section class="login-card" id="login-card" aria-live="polite">
-          <div class="login-body" id="login-needed">
-            <span class="login-badge"><i data-lucide="user-round"></i></span>
-            <h2 class="login-title" data-i18n="login.title"></h2>
-            <p class="login-text" data-i18n="login.text"></p>
-            <p class="login-error" role="alert" hidden>
-              <span class="login-error-icon"></span>
-              <span class="login-error-text"></span>
-            </p>
-            <button class="btn btn-primary" id="login" type="button" data-i18n="login.button"></button>
+          <div class="audio">
+            <div class="setpoint-row">
+              <div class="setpoint" aria-live="polite">
+                <span class="setpoint-ghost" id="volume-ghost" aria-hidden="true"></span>
+                <span class="setpoint-value" id="volume">--</span>
+                <span class="setpoint-unit" data-i18n="main.volume"></span>
+              </div>
+              <button class="pill" id="mute" type="button" role="switch" aria-checked="false">
+                <span class="pill-icon" aria-hidden="true"><i class="icon-sound" data-lucide="volume-2"></i><i class="icon-muted" data-lucide="volume-x"></i></span>
+                <span data-i18n="main.mute"></span>
+                <span class="switch" aria-hidden="true"></span>
+              </button>
+            </div>
+
+            <div class="slider-row">
+              <button class="round" id="volume-down" type="button" data-i18n-aria-label="main.volumeDown">
+                <i data-lucide="minus"></i>
+              </button>
+              <div class="track">
+                <input type="range" id="volume-input" min="0" max="100" step="1" value="0" data-i18n-aria-label="main.volumeInput" />
+              </div>
+              <button class="round" id="volume-up" type="button" data-i18n-aria-label="main.volumeUp">
+                <i data-lucide="plus"></i>
+              </button>
+            </div>
+            <div class="scale" aria-hidden="true"><span>0</span><span>100</span></div>
           </div>
-          <div class="login-body" id="login-waiting" hidden>
-            <span class="login-badge spinning"><i data-lucide="loader-circle"></i></span>
-            <h2 class="login-title" data-i18n="login.waiting"></h2>
-            <p class="login-error" role="alert" hidden>
-              <span class="login-error-icon"></span>
-              <span class="login-error-text"></span>
-            </p>
-            <button class="btn" id="cancel-login" type="button" data-i18n="login.cancel"></button>
+
+          <section class="card favs" id="favs">
+            <header class="card-head">
+              <i data-lucide="star"></i>
+              <h2 data-i18n="home.favorites"></h2>
+              <button class="card-link" id="favs-all" type="button" data-i18n="home.seeAll"></button>
+            </header>
+            <div class="fav-row" id="fav-row" role="group" data-i18n-aria-label="home.favorites"></div>
+          </section>
+
+          <section class="card inputs" id="inputs">
+            <header class="card-head">
+              <i data-lucide="cable"></i>
+              <h2 data-i18n="home.inputs"></h2>
+            </header>
+            <div class="input-list" id="input-list" role="radiogroup" data-i18n-aria-label="home.inputs"></div>
+            <p class="card-note" id="inputs-empty" hidden data-i18n="home.noInputs"></p>
+          </section>
+
+          <div class="strip">
+            <button class="cell" type="button" data-menu="entrada" aria-haspopup="menu">
+              <span class="cell-top"><span class="cell-icon"><i data-lucide="cable"></i></span><i data-lucide="chevron-up" class="cell-chevron"></i></span>
+              <span class="cell-label" data-i18n="main.input"></span>
+              <span class="cell-value" data-value-for="entrada">--</span>
+            </button>
+            <div class="cell cell-plain">
+              <span class="cell-top">
+                <button class="mini" id="channel-down" type="button" data-i18n-aria-label="main.channelDown"><i data-lucide="minus"></i></button>
+                <button class="mini" id="channel-up" type="button" data-i18n-aria-label="main.channelUp"><i data-lucide="plus"></i></button>
+              </span>
+              <span class="cell-label" data-i18n="main.channel"></span>
+              <span class="cell-value" id="channel">--</span>
+            </div>
+            <button class="cell" type="button" data-menu="imagem" aria-haspopup="menu">
+              <span class="cell-top"><span class="cell-icon"><i data-lucide="sun-medium"></i></span><i data-lucide="chevron-up" class="cell-chevron"></i></span>
+              <span class="cell-label" data-i18n="main.picture"></span>
+              <span class="cell-value" data-value-for="imagem">--</span>
+            </button>
+            <button class="cell" type="button" data-menu="som" aria-haspopup="menu">
+              <span class="cell-top"><span class="cell-icon"><i data-lucide="audio-lines"></i></span><i data-lucide="chevron-up" class="cell-chevron"></i></span>
+              <span class="cell-label" data-i18n="main.sound"></span>
+              <span class="cell-value" data-value-for="som">--</span>
+            </button>
           </div>
         </section>
 
-        <div class="setpoint-row">
-          <div class="setpoint" aria-live="polite">
-            <span class="setpoint-value" id="volume">--</span>
-            <span class="setpoint-unit" data-i18n="main.volume"></span>
-          </div>
-          <button class="pill" id="mute" type="button" role="switch" aria-checked="false">
-            <i data-lucide="volume-x"></i>
-            <span data-i18n="main.mute"></span>
-            <span class="switch" aria-hidden="true"></span>
-          </button>
-        </div>
+        <section class="view view-settings" id="settings" data-i18n-aria-label="page.root" inert>
+          <header class="settings-top">
+            <button class="icon-button" id="close-settings" type="button" data-i18n-aria-label="settings.back">
+              <i data-lucide="chevron-left"></i>
+            </button>
+            <div class="settings-heading">
+              <h1 id="settings-title" tabindex="-1" data-i18n="page.root"></h1>
+              <span class="settings-device" id="device-name"></span>
+            </div>
+          </header>
 
-        <div class="slider-row">
-          <button class="round" id="volume-down" type="button" data-i18n-aria-label="main.volumeDown">
-            <i data-lucide="minus"></i>
-          </button>
-          <div class="track">
-            <input type="range" id="volume-input" min="0" max="100" step="1" value="0" data-i18n-aria-label="main.volumeInput" />
-          </div>
-          <button class="round" id="volume-up" type="button" data-i18n-aria-label="main.volumeUp">
-            <i data-lucide="plus"></i>
-          </button>
-        </div>
-        <div class="scale" aria-hidden="true"><span>0</span><span>100</span></div>
+          <div class="pages">
+            <section class="page active" id="page-root" data-title-key="page.root" data-tab="settings">
+              <div class="group" id="group-update" hidden>
+                <div class="row">
+                  <i data-lucide="circle-arrow-down"></i>
+                  <span class="row-text"><span class="row-title" id="update-title"></span><span class="row-note" data-i18n="update.note"></span></span>
+                  <button class="btn btn-small btn-primary" id="update-download" type="button" aria-describedby="update-title" data-i18n="update.download"></button>
+                </div>
+              </div>
 
-        <div class="strip">
-          <button class="cell" type="button" data-menu="entrada" aria-haspopup="menu">
-            <span class="cell-top"><span class="cell-icon"><i data-lucide="cable"></i></span><i data-lucide="chevron-up" class="cell-chevron"></i></span>
-            <span class="cell-label" data-i18n="main.input"></span>
-            <span class="cell-value" data-value-for="entrada">--</span>
-          </button>
-          <div class="cell cell-plain">
-            <span class="cell-top">
-              <button class="mini" id="channel-down" type="button" data-i18n-aria-label="main.channelDown"><i data-lucide="minus"></i></button>
-              <button class="mini" id="channel-up" type="button" data-i18n-aria-label="main.channelUp"><i data-lucide="plus"></i></button>
+              <div class="group">
+                <button class="row row-link" id="row-device" type="button" data-go="device">
+                  <i data-lucide="tv"></i>
+                  <span class="row-text"><span class="row-title" data-i18n="page.device"></span><span class="row-note" id="device-row-name">--</span></span>
+                  <span class="row-end"><i data-lucide="chevron-right" class="row-chevron"></i></span>
+                </button>
+              </div>
+
+              <div class="group">
+                <button class="row row-link row-compact-only" type="button" data-go="schedules">
+                  <i data-lucide="calendar-clock"></i>
+                  <span class="row-text"><span class="row-title" data-i18n="page.schedules"></span><span class="row-note" data-i18n="settings.schedulesNote"></span></span>
+                  <span class="row-end"><i data-lucide="chevron-right" class="row-chevron"></i></span>
+                </button>
+                <button class="row row-link" type="button" data-go="prefs">
+                  <i data-lucide="settings"></i>
+                  <span class="row-text"><span class="row-title" data-i18n="page.prefs"></span><span class="row-note" data-i18n="settings.prefsNote"></span></span>
+                  <span class="row-end"><i data-lucide="chevron-right" class="row-chevron"></i></span>
+                </button>
+              </div>
+            </section>
+
+            <section class="page" id="page-device" data-title-key="page.device" inert>
+              <div class="page-status" id="devices-loading">
+                <span class="spinning"><i data-lucide="loader-circle"></i></span>
+                <span data-i18n="devices.loading"></span>
+              </div>
+              <div class="group" id="devices-list" role="radiogroup" data-i18n-aria-label="page.device" hidden></div>
+              <p class="page-note" id="devices-empty" hidden data-i18n="devices.empty"></p>
+            </section>
+
+            <section class="page" id="page-schedules" data-title-key="page.schedules" data-tab="routines" inert>
+              <section class="group timer-card" id="timer-card">
+                <div class="row row-timer">
+                  <i data-lucide="timer"></i>
+                  <span class="row-text"><span class="row-title" data-i18n="timer.title"></span><span class="row-note" id="timer-note"></span></span>
+                  <button class="btn btn-small" id="timer-cancel" type="button" hidden data-i18n="timer.cancel"></button>
+                </div>
+                <div class="row row-stack">
+                  <span class="row-title" id="timer-chips-label"></span>
+                  <div class="chips" id="timer-chips" role="group" aria-labelledby="timer-chips-label"></div>
+                </div>
+              </section>
+              <div class="group" id="schedules-list" hidden></div>
+              <p class="page-note" id="schedules-empty" data-i18n="schedules.empty"></p>
+              <h2 class="section-title" data-i18n="schedules.newTitle"></h2>
+              <form class="group" id="schedule-form">
+                <div class="row row-field">
+                  <label class="row-title" for="schedule-time" data-i18n="schedules.time"></label>
+                  <input class="field" type="time" id="schedule-time" value="22:00" required />
+                </div>
+                <div class="row row-stack">
+                  <span class="row-title" id="schedule-days-label" data-i18n="schedules.days"></span>
+                  <div class="chips" id="schedule-days" role="group" aria-labelledby="schedule-days-label"></div>
+                </div>
+                <div class="row row-stack">
+                  <span class="row-title" id="schedule-action-label" data-i18n="schedules.action"></span>
+                  <div class="segmented" id="schedule-action" role="group" aria-labelledby="schedule-action-label"></div>
+                </div>
+                <div class="row row-stack">
+                  <button class="btn btn-primary" id="schedule-save" type="submit" data-i18n="schedules.add"></button>
+                </div>
+              </form>
+            </section>
+
+            <section class="page page-remote" id="page-remote" data-title-key="page.remote" data-tab="control" data-usable="false" inert>
+              <div class="remote-fit" id="remote-fit">
+                <div class="remote-scale" id="remote-scale">
+                  <div class="remote" role="group" data-i18n-aria-label="remote.body">
+                    <span class="rm-led" id="remote-led" aria-hidden="true"></span>
+                    <button class="rm-key rm-power remote-control" id="remote-power" type="button" data-i18n-aria-label="remote.power" data-i18n-title="remote.power">
+                      <i data-lucide="power"></i>
+                    </button>
+
+                    <div class="rm-pad" role="group" data-i18n-aria-label="remote.dpad">
+                      <button class="rm-dir rm-up remote-control" type="button" data-key="UP" data-i18n-aria-label="remote.up"><i data-lucide="chevron-up"></i></button>
+                      <button class="rm-dir rm-right remote-control" type="button" data-key="RIGHT" data-i18n-aria-label="remote.right"><i data-lucide="chevron-right"></i></button>
+                      <button class="rm-dir rm-down remote-control" type="button" data-key="DOWN" data-i18n-aria-label="remote.down"><i data-lucide="chevron-down"></i></button>
+                      <button class="rm-dir rm-left remote-control" type="button" data-key="LEFT" data-i18n-aria-label="remote.left"><i data-lucide="chevron-left"></i></button>
+                      <button class="rm-ok remote-control" type="button" data-key="OK" data-i18n="remote.ok"></button>
+                    </div>
+
+                    <div class="rm-row">
+                      <button class="rm-key remote-control" type="button" data-key="BACK" data-i18n-aria-label="remote.back" data-i18n-title="remote.back"><i data-lucide="undo-2"></i></button>
+                      <button class="rm-key remote-control" type="button" data-key="HOME" data-i18n-aria-label="remote.home" data-i18n-title="remote.home"><i data-lucide="house"></i></button>
+                      <button class="rm-key rm-playpause remote-control" id="remote-playpause" type="button" data-action="playpause" data-i18n-aria-label="remote.playPause" data-i18n-title="remote.playPause">
+                        <i data-lucide="play"></i><i data-lucide="pause"></i>
+                      </button>
+                    </div>
+
+                    <div class="rm-rockers">
+                      <div class="rm-rocker" role="group" data-i18n-aria-label="remote.volume">
+                        <button class="rm-rk rm-rk-up remote-control" type="button" data-action="vol+" data-i18n-aria-label="remote.volumeUp"><i data-lucide="plus"></i></button>
+                        <button class="rm-rk-mid remote-control" id="remote-mute" type="button" role="switch" aria-checked="false" data-i18n-aria-label="remote.mute" data-i18n-title="remote.mute">
+                          <i class="icon-sound" data-lucide="volume-2"></i><i class="icon-muted" data-lucide="volume-x"></i>
+                        </button>
+                        <button class="rm-rk rm-rk-down remote-control" type="button" data-action="vol-" data-i18n-aria-label="remote.volumeDown"><i data-lucide="minus"></i></button>
+                      </div>
+                      <div class="rm-rocker" role="group" data-i18n-aria-label="remote.channel">
+                        <button class="rm-rk rm-rk-up remote-control" type="button" data-action="canal+" data-i18n-aria-label="remote.channelUp"><i data-lucide="chevron-up"></i></button>
+                        <span class="rm-rk-label" aria-hidden="true">CH</span>
+                        <button class="rm-rk rm-rk-down remote-control" type="button" data-action="canal-" data-i18n-aria-label="remote.channelDown"><i data-lucide="chevron-down"></i></button>
+                      </div>
+                    </div>
+
+                    <div class="rm-apps" id="remote-apps" role="group" data-i18n-aria-label="remote.apps.keys"></div>
+                  </div>
+
+                  <div class="rm-extra" role="group" data-i18n-aria-label="remote.extra">
+                    <button class="rm-more remote-control" type="button" data-key="MENU" data-i18n-aria-label="remote.menu" data-i18n-title="remote.menu"><i data-lucide="menu"></i></button>
+                    <button class="rm-more remote-control" type="button" data-key="SOURCE" data-i18n-aria-label="remote.source" data-i18n-title="remote.source"><i data-lucide="log-in"></i></button>
+                    <button class="rm-more remote-control" type="button" data-key="EXIT" data-i18n-aria-label="remote.exit" data-i18n-title="remote.exit"><i data-lucide="x"></i></button>
+                    <button class="rm-more remote-control" type="button" data-action="voltar" data-i18n-aria-label="remote.rewind" data-i18n-title="remote.rewind"><i data-lucide="rewind"></i></button>
+                    <button class="rm-more remote-control" type="button" data-action="stop" data-i18n-aria-label="remote.stop" data-i18n-title="remote.stop"><i data-lucide="square"></i></button>
+                    <button class="rm-more remote-control" type="button" data-action="avancar" data-i18n-aria-label="remote.forward" data-i18n-title="remote.forward"><i data-lucide="fast-forward"></i></button>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <section class="page" id="page-apps" data-title-key="tab.apps" data-tab="apps" inert>
+              <div class="app-grid" id="app-grid" role="group" data-i18n-aria-label="remote.apps"></div>
+            </section>
+
+            <section class="page" id="page-prefs" data-title-key="page.prefs" inert>
+              <div class="group">
+                <div class="row">
+                  <i data-lucide="wifi-off"></i>
+                  <span class="row-text"><span class="row-title" data-i18n="prefs.offline"></span><span class="row-note" data-i18n="prefs.offlineNote"></span></span>
+                  <button class="switch" type="button" role="switch" aria-checked="false" data-pref="notificacoes.offline" data-i18n-aria-label="prefs.offline"></button>
+                </div>
+                <div class="row row-wide">
+                  <i data-lucide="clock-alert"></i>
+                  <span class="row-text"><span class="row-title" data-i18n="prefs.onFor"></span><span class="row-note" data-i18n="prefs.onForNote"></span></span>
+                  <div class="segmented" id="on-hours" role="group" data-i18n-aria-label="prefs.onFor"></div>
+                </div>
+              </div>
+
+              <div class="group">
+                <div class="row">
+                  <i data-lucide="keyboard"></i>
+                  <span class="row-text">
+                    <span class="row-title" data-i18n="prefs.shortcut"></span>
+                    <span class="row-note" data-i18n="prefs.shortcutNote"></span>
+                    <span class="row-note row-problem" id="shortcut-error" role="alert" hidden data-i18n="prefs.shortcutError"></span>
+                  </span>
+                  <span class="row-end">
+                    <kbd class="keys" id="shortcut-keys"></kbd>
+                    <button class="switch" type="button" role="switch" aria-checked="false" data-pref="atalho.ativo" data-i18n-aria-label="prefs.shortcut"></button>
+                  </span>
+                </div>
+                <div class="row" id="row-volume-icon" hidden>
+                  <i data-lucide="volume-2"></i>
+                  <span class="row-text"><span class="row-title" data-i18n="prefs.volumeIcon"></span></span>
+                  <button class="switch" type="button" role="switch" aria-checked="false" data-pref="icone.volume" data-i18n-aria-label="prefs.volumeIcon"></button>
+                </div>
+              </div>
+
+              <div class="group">
+                <div class="row row-wide">
+                  <i data-lucide="layout-panel-top"></i>
+                  <span class="row-text"><span class="row-title" data-i18n="prefs.style"></span><span class="row-note" data-i18n="prefs.styleNote"></span></span>
+                  <div class="segmented" id="style-choice" role="group" data-i18n-aria-label="prefs.style"></div>
+                </div>
+              </div>
+
+              <div class="group">
+                <div class="row">
+                  <i data-lucide="monitor"></i>
+                  <span class="row-text"><span class="row-title" id="autostart-title" data-i18n="autostart.windows"></span></span>
+                  <button class="switch" type="button" role="switch" aria-checked="false" data-pref="autostart" id="autostart" data-i18n-aria-label="autostart.windows"></button>
+                </div>
+                <div class="row" id="row-dock" hidden>
+                  <i data-lucide="dock"></i>
+                  <span class="row-text"><span class="row-title" data-i18n="prefs.dock"></span></span>
+                  <button class="switch" type="button" role="switch" aria-checked="false" data-pref="dock" data-i18n-aria-label="prefs.dock"></button>
+                </div>
+                <div class="row">
+                  <i data-lucide="refresh-cw"></i>
+                  <span class="row-text"><span class="row-title" data-i18n="prefs.updates"></span><span class="row-note" data-i18n="prefs.updatesNote"></span></span>
+                  <button class="switch" type="button" role="switch" aria-checked="false" data-pref="atualizacoes" data-i18n-aria-label="prefs.updates"></button>
+                </div>
+                <div class="row row-wide">
+                  <i data-lucide="languages"></i>
+                  <span class="row-text"><span class="row-title" data-i18n="prefs.language"></span></span>
+                  <div class="segmented" id="language" role="group" data-i18n-aria-label="prefs.language"></div>
+                </div>
+              </div>
+            </section>
+          </div>
+        </section>
+      </div>
+
+      <footer class="status">
+        <div class="status-message" id="status" data-tone="busy">
+          <span class="status-icon" id="status-icon"></span>
+          <span class="status-body">
+            <span id="status-text" aria-live="polite" aria-atomic="true" data-i18n="status.connecting"></span>
+            <span class="status-actions">
+              <button class="status-link" id="retry" type="button" hidden data-i18n="status.retry"></button>
+              <button class="status-link" id="pick-device" type="button" hidden data-i18n="status.pickDevice"></button>
             </span>
-            <span class="cell-label" data-i18n="main.channel"></span>
-            <span class="cell-value" id="channel">--</span>
-          </div>
-          <button class="cell" type="button" data-menu="imagem" aria-haspopup="menu">
-            <span class="cell-top"><span class="cell-icon"><i data-lucide="sun-medium"></i></span><i data-lucide="chevron-up" class="cell-chevron"></i></span>
-            <span class="cell-label" data-i18n="main.picture"></span>
-            <span class="cell-value" data-value-for="imagem">--</span>
+          </span>
+        </div>
+        <span class="tv-model" id="tv-model" hidden data-i18n-title="device.model"></span>
+        <div class="footer-tools">
+          <button class="icon-button tool" id="open-remote" type="button" data-i18n-aria-label="main.remote">
+            <i data-lucide="gamepad-2"></i>
           </button>
-          <button class="cell" type="button" data-menu="som" aria-haspopup="menu">
-            <span class="cell-top"><span class="cell-icon"><i data-lucide="audio-lines"></i></span><i data-lucide="chevron-up" class="cell-chevron"></i></span>
-            <span class="cell-label" data-i18n="main.sound"></span>
-            <span class="cell-value" data-value-for="som">--</span>
+          <button class="icon-button tool" id="open-timer" type="button" data-i18n-aria-label="main.timer" aria-haspopup="menu" aria-expanded="false">
+            <i data-lucide="clock"></i>
+          </button>
+          <button class="icon-button" id="open-settings" type="button" data-i18n-aria-label="main.openSettings">
+            <i data-lucide="sliders-horizontal"></i>
+          </button>
+          <button class="icon-button style-toggle" id="style-toggle" type="button" data-i18n-aria-label="style.toTabs" data-i18n-title="style.toTabs">
+            <i data-lucide="layout-panel-top"></i>
           </button>
         </div>
-
-        <footer class="status">
-          <div class="status-message" id="status" data-tone="busy">
-            <span class="status-icon" id="status-icon"></span>
-            <span class="status-body">
-              <span id="status-text" aria-live="polite" aria-atomic="true" data-i18n="status.connecting"></span>
-              <span class="status-actions">
-                <button class="status-link" id="retry" type="button" hidden data-i18n="status.retry"></button>
-                <button class="status-link" id="pick-device" type="button" hidden data-i18n="status.pickDevice"></button>
-              </span>
-            </span>
-          </div>
-          <div class="footer-tools">
-            <button class="icon-button tool" id="open-remote" type="button" data-i18n-aria-label="main.remote">
-              <i data-lucide="gamepad-2"></i>
-            </button>
-            <button class="icon-button tool" id="open-timer" type="button" data-i18n-aria-label="main.timer" aria-haspopup="menu" aria-expanded="false">
-              <i data-lucide="clock"></i>
-            </button>
-            <button class="icon-button" id="open-settings" type="button" data-i18n-aria-label="main.openSettings">
-              <i data-lucide="sliders-horizontal"></i>
-            </button>
-          </div>
-        </footer>
-      </section>
-
-      <section class="view view-settings" id="settings" data-i18n-aria-label="page.root" inert>
-        <header class="settings-top">
-          <button class="icon-button" id="close-settings" type="button" data-i18n-aria-label="settings.back">
-            <i data-lucide="chevron-left"></i>
-          </button>
-          <div class="settings-heading">
-            <h1 id="settings-title" tabindex="-1" data-i18n="page.root"></h1>
-            <span class="settings-device" id="device-name"></span>
-          </div>
-        </header>
-
-        <div class="pages">
-          <section class="page active" id="page-root" data-title-key="page.root">
-            <div class="group" id="group-update" hidden>
-              <div class="row">
-                <i data-lucide="circle-arrow-down"></i>
-                <span class="row-text"><span class="row-title" id="update-title"></span><span class="row-note" data-i18n="update.note"></span></span>
-                <button class="btn btn-small btn-primary" id="update-download" type="button" aria-describedby="update-title" data-i18n="update.download"></button>
-              </div>
-            </div>
-
-            <div class="group">
-              <button class="row row-link" id="row-device" type="button" data-go="device">
-                <i data-lucide="tv"></i>
-                <span class="row-text"><span class="row-title" data-i18n="page.device"></span><span class="row-note" id="device-row-name">--</span></span>
-                <span class="row-end"><i data-lucide="chevron-right" class="row-chevron"></i></span>
-              </button>
-            </div>
-
-            <div class="group">
-              <button class="row row-link" type="button" data-go="schedules">
-                <i data-lucide="calendar-clock"></i>
-                <span class="row-text"><span class="row-title" data-i18n="page.schedules"></span><span class="row-note" data-i18n="settings.schedulesNote"></span></span>
-                <span class="row-end"><i data-lucide="chevron-right" class="row-chevron"></i></span>
-              </button>
-              <button class="row row-link" type="button" data-go="prefs">
-                <i data-lucide="settings"></i>
-                <span class="row-text"><span class="row-title" data-i18n="page.prefs"></span><span class="row-note" data-i18n="settings.prefsNote"></span></span>
-                <span class="row-end"><i data-lucide="chevron-right" class="row-chevron"></i></span>
-              </button>
-            </div>
-          </section>
-
-          <section class="page" id="page-device" data-title-key="page.device" inert>
-            <div class="page-status" id="devices-loading">
-              <span class="spinning"><i data-lucide="loader-circle"></i></span>
-              <span data-i18n="devices.loading"></span>
-            </div>
-            <div class="group" id="devices-list" role="radiogroup" data-i18n-aria-label="page.device" hidden></div>
-            <p class="page-note" id="devices-empty" hidden data-i18n="devices.empty"></p>
-          </section>
-
-          <section class="page" id="page-schedules" data-title-key="page.schedules" inert>
-            <div class="group" id="schedules-list" hidden></div>
-            <p class="page-note" id="schedules-empty" data-i18n="schedules.empty"></p>
-            <h2 class="section-title" data-i18n="schedules.newTitle"></h2>
-            <form class="group" id="schedule-form">
-              <div class="row row-field">
-                <label class="row-title" for="schedule-time" data-i18n="schedules.time"></label>
-                <input class="field" type="time" id="schedule-time" value="22:00" required />
-              </div>
-              <div class="row row-stack">
-                <span class="row-title" id="schedule-days-label" data-i18n="schedules.days"></span>
-                <div class="chips" id="schedule-days" role="group" aria-labelledby="schedule-days-label"></div>
-              </div>
-              <div class="row row-stack">
-                <span class="row-title" id="schedule-action-label" data-i18n="schedules.action"></span>
-                <div class="segmented" id="schedule-action" role="group" aria-labelledby="schedule-action-label"></div>
-              </div>
-              <div class="row row-stack">
-                <button class="btn btn-primary" id="schedule-save" type="submit" data-i18n="schedules.add"></button>
-              </div>
-            </form>
-          </section>
-
-          <section class="page page-remote" id="page-remote" data-title-key="page.remote" data-usable="false" inert>
-            <div class="dpad" role="group" data-i18n-aria-label="remote.dpad">
-              <span></span>
-              <button class="dpad-key dpad-up remote-control" type="button" data-key="UP" data-i18n-aria-label="remote.up">
-                <i data-lucide="chevron-up"></i>
-              </button>
-              <span></span>
-              <button class="dpad-key dpad-left remote-control" type="button" data-key="LEFT" data-i18n-aria-label="remote.left">
-                <i data-lucide="chevron-left"></i>
-              </button>
-              <button class="dpad-ok remote-control" type="button" data-key="OK" data-i18n="remote.ok"></button>
-              <button class="dpad-key dpad-right remote-control" type="button" data-key="RIGHT" data-i18n-aria-label="remote.right">
-                <i data-lucide="chevron-right"></i>
-              </button>
-              <span></span>
-              <button class="dpad-key dpad-down remote-control" type="button" data-key="DOWN" data-i18n-aria-label="remote.down">
-                <i data-lucide="chevron-down"></i>
-              </button>
-              <span></span>
-            </div>
-
-            <div class="remote-row" role="group">
-              <button class="remote-key remote-control" type="button" data-key="BACK">
-                <i data-lucide="undo-2"></i>
-                <span data-i18n="remote.back"></span>
-              </button>
-              <button class="remote-key remote-control" type="button" data-key="HOME">
-                <i data-lucide="house"></i>
-                <span data-i18n="remote.home"></span>
-              </button>
-              <button class="remote-key remote-control" type="button" data-key="MENU">
-                <i data-lucide="menu"></i>
-                <span data-i18n="remote.menu"></span>
-              </button>
-            </div>
-
-            <div class="playback remote-control" role="group" data-i18n-aria-label="remote.playback">
-              <button class="playback-key" type="button" data-action="voltar" data-i18n-aria-label="remote.rewind"><i data-lucide="rewind"></i></button>
-              <button class="playback-key" type="button" data-action="play" data-i18n-aria-label="remote.play"><i data-lucide="play"></i></button>
-              <button class="playback-key" type="button" data-action="pause" data-i18n-aria-label="remote.pause"><i data-lucide="pause"></i></button>
-              <button class="playback-key" type="button" data-action="stop" data-i18n-aria-label="remote.stop"><i data-lucide="square"></i></button>
-              <button class="playback-key" type="button" data-action="avancar" data-i18n-aria-label="remote.forward"><i data-lucide="fast-forward"></i></button>
-            </div>
-
-            <h2 class="section-title" data-i18n="remote.apps"></h2>
-            <div class="apps" id="apps" role="group" data-i18n-aria-label="remote.apps"></div>
-          </section>
-
-          <section class="page" id="page-prefs" data-title-key="page.prefs" inert>
-            <div class="group">
-              <div class="row">
-                <i data-lucide="wifi-off"></i>
-                <span class="row-text"><span class="row-title" data-i18n="prefs.offline"></span><span class="row-note" data-i18n="prefs.offlineNote"></span></span>
-                <button class="switch" type="button" role="switch" aria-checked="false" data-pref="notificacoes.offline" data-i18n-aria-label="prefs.offline"></button>
-              </div>
-              <div class="row row-wide">
-                <i data-lucide="clock-alert"></i>
-                <span class="row-text"><span class="row-title" data-i18n="prefs.onFor"></span><span class="row-note" data-i18n="prefs.onForNote"></span></span>
-                <div class="segmented" id="on-hours" role="group" data-i18n-aria-label="prefs.onFor"></div>
-              </div>
-            </div>
-
-            <div class="group">
-              <div class="row">
-                <i data-lucide="keyboard"></i>
-                <span class="row-text">
-                  <span class="row-title" data-i18n="prefs.shortcut"></span>
-                  <span class="row-note" data-i18n="prefs.shortcutNote"></span>
-                  <span class="row-note row-problem" id="shortcut-error" role="alert" hidden data-i18n="prefs.shortcutError"></span>
-                </span>
-                <span class="row-end">
-                  <kbd class="keys" id="shortcut-keys"></kbd>
-                  <button class="switch" type="button" role="switch" aria-checked="false" data-pref="atalho.ativo" data-i18n-aria-label="prefs.shortcut"></button>
-                </span>
-              </div>
-              <div class="row" id="row-volume-icon" hidden>
-                <i data-lucide="volume-2"></i>
-                <span class="row-text"><span class="row-title" data-i18n="prefs.volumeIcon"></span></span>
-                <button class="switch" type="button" role="switch" aria-checked="false" data-pref="icone.volume" data-i18n-aria-label="prefs.volumeIcon"></button>
-              </div>
-            </div>
-
-            <div class="group">
-              <div class="row">
-                <i data-lucide="monitor"></i>
-                <span class="row-text"><span class="row-title" id="autostart-title" data-i18n="autostart.windows"></span></span>
-                <button class="switch" type="button" role="switch" aria-checked="false" data-pref="autostart" id="autostart" data-i18n-aria-label="autostart.windows"></button>
-              </div>
-              <div class="row" id="row-dock" hidden>
-                <i data-lucide="dock"></i>
-                <span class="row-text"><span class="row-title" data-i18n="prefs.dock"></span></span>
-                <button class="switch" type="button" role="switch" aria-checked="false" data-pref="dock" data-i18n-aria-label="prefs.dock"></button>
-              </div>
-              <div class="row">
-                <i data-lucide="refresh-cw"></i>
-                <span class="row-text"><span class="row-title" data-i18n="prefs.updates"></span><span class="row-note" data-i18n="prefs.updatesNote"></span></span>
-                <button class="switch" type="button" role="switch" aria-checked="false" data-pref="atualizacoes" data-i18n-aria-label="prefs.updates"></button>
-              </div>
-              <div class="row row-wide">
-                <i data-lucide="languages"></i>
-                <span class="row-text"><span class="row-title" data-i18n="prefs.language"></span></span>
-                <div class="segmented" id="language" role="group" data-i18n-aria-label="prefs.language"></div>
-              </div>
-            </div>
-          </section>
-        </div>
-      </section>
+      </footer>
 
       <div class="menu" id="menu" role="menu" hidden></div>
     </main>
@@ -353,13 +425,16 @@
     <script src="tray-icon.js"></script>
     <script src="popup.js"></script>
     <script src="main-view.js"></script>
+    <script src="home-cards.js"></script>
     <script src="timer.js"></script>
     <script src="settings.js"></script>
     <script src="page-device.js"></script>
     <script src="page-schedules.js"></script>
     <script src="page-prefs.js"></script>
     <script src="page-remote.js"></script>
+    <script src="page-apps.js"></script>
     <script src="updates.js"></script>
+    <script src="layout.js"></script>
     <script src="keyboard.js"></script>
     <script src="app.js"></script>
   </body>

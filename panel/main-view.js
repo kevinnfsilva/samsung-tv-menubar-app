@@ -39,16 +39,31 @@ async function refused(call, noticeKey) {
 
 /* Volume */
 
+// Key repeats and a dragged slider change the number faster than it can roll: the first change of a burst rolls it.
+const ROLL_BURST_MS = 80;
+let lastRollAt = Number.NEGATIVE_INFINITY;
+
 function showVolume(value) {
   const element = byId('volume');
   const previous = element.dataset.value ? Number(element.dataset.value) : Number.NaN;
   element.dataset.value = value ?? '';
   if (element.textContent === formatVolume(value)) return;
+  const before = element.textContent;
   element.textContent = formatVolume(value);
   if (value == null || Number.isNaN(previous)) return;
-  element.classList.remove('roll-up', 'roll-down');
-  void element.offsetWidth;
-  element.classList.add(value > previous ? 'roll-up' : 'roll-down');
+  const now = performance.now();
+  const burst = now - lastRollAt < ROLL_BURST_MS;
+  lastRollAt = now;
+  if (burst) return;
+  // The old number leaves on the ghost beside the value while the new one arrives
+  const ghost = byId('volume-ghost');
+  ghost.textContent = before;
+  const direction = value > previous ? 'roll-up' : 'roll-down';
+  for (const node of [element, ghost]) {
+    node.classList.remove('roll-up', 'roll-down');
+    void node.offsetWidth;
+    node.classList.add(direction);
+  }
 }
 
 function setSliderPosition(value) {
@@ -107,6 +122,8 @@ function renderDevice(device) {
   renderCells(device);
   byId('tv-app').textContent = screenTitle(device) ?? '';
   byId('tv-mode').textContent = textOf(device?.imagem) ?? '';
+  renderHeaderTexts(device);
+  renderHomeCards(device);
 }
 
 // What a failed run looks like to the person, by reason: the footer and the sign-in card say the same thing.
@@ -143,10 +160,33 @@ function updatedAtText() {
   return t('status.updatedAt', { time: formatClock(view.updatedAt) });
 }
 
+// What the footer says now, to tell a real change of message from a redraw of the same one.
+let statusKey = null;
+
+// The old message leaves as a ghost that fades up and out while the new one fades in from below.
+function crossfadeStatus(element) {
+  const icon = byId('status-icon');
+  const mark = el('span', { class: 'status-icon' }, ...[...icon.childNodes].map((node) => node.cloneNode(true)));
+  mark.style.color = getComputedStyle(icon).color;
+  const ghost = el('span', { class: 'status-ghost', 'aria-hidden': 'true' }, mark, el('span', {}, byId('status-text').textContent));
+  ghost.style.color = getComputedStyle(element).color;
+  element.querySelectorAll('.status-ghost').forEach((old) => old.remove());
+  element.append(ghost);
+  ghost.addEventListener('animationend', () => ghost.remove());
+  element.classList.remove('swap');
+  void element.offsetWidth;
+  element.classList.add('swap');
+}
+
 function renderStatus(status) {
   const element = byId('status');
+  const key = JSON.stringify([status.icon, status.text, status.tone]);
+  const swapping = statusKey !== null && statusKey !== key && !element.hidden && !panel.classList.contains('asleep');
+  statusKey = key;
+  if (swapping) crossfadeStatus(element);
   element.hidden = loggedOut();
   element.dataset.tone = status.tone;
+  panel.dataset.tone = status.tone;
   setIcon(byId('status-icon'), status.icon);
   byId('status-text').textContent = status.text;
   byId('retry').hidden = !status.retry;
@@ -203,6 +243,7 @@ function renderMain() {
   renderLogin(login);
   renderStatus(status);
   renderFooterTools(status);
+  renderTabs();
 }
 
 /* Wiring */

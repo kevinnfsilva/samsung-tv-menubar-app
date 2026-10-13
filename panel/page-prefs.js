@@ -53,6 +53,13 @@ function languageOptions() {
   return [{ value: 'auto', label: t('prefs.languageAuto') }, ...languages];
 }
 
+function styleOptions() {
+  return [
+    { value: 'compacto', label: t('style.compact') },
+    { value: 'abas', label: t('style.tabs') },
+  ];
+}
+
 let shortcutFailed = false;
 
 function renderPrefsPage() {
@@ -66,6 +73,9 @@ function renderPrefsPage() {
   });
   renderSegmented(byId('language'), languageOptions(), settings.idioma, (value) => {
     window.ac.updateSettings({ idioma: value });
+  });
+  renderSegmented(byId('style-choice'), styleOptions(), settings.estilo, (value) => {
+    window.ac.updateSettings({ estilo: value });
   });
   const keys = byId('shortcut-keys');
   keys.textContent = formatShortcut(settings.atalho.tecla);

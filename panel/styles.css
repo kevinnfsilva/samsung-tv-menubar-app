@@ -1,154 +1,226 @@
-@property --pct {
-  syntax: '<number>';
-  inherits: true;
-  initial-value: 0.5;
-}
-
 /*
-  Colours live here and nowhere else. The values below are the dark theme; the light theme redefines them in the
-  prefers-color-scheme block right after this one. Names come from the dark palette, so a few read oddly in light:
-  porcelain is the primary ink (pale on dark, near-black on light), graphite is the panel itself, slate the cards on it,
-  slate-raised the menus and buttons above them and field the inset wells.
+  The panel follows the system appearance and speaks Control Center: a neutral translucent surface, soft rounded modules
+  with a hairline highlight on their top edge, one accent colour.
+
+  Colours live here and nowhere else (pages.css only uses them). The values below are the dark appearance; the light one
+  redefines them in the prefers-color-scheme block right after. Layers, from the back:
+    card      what the window is made of. On macOS the system draws it (vibrancy) and --card-tint only steadies its
+              contrast; on Windows the page draws an opaque card with its own margin and shadow.
+    module    a translucent fill on the card (a control, a group of rows)
+    raised    a fill on a module (the selected segment, a pressed key)
+    menu      the popup, one step above everything
 */
 :root {
   color-scheme: light dark;
 
-  /* Surfaces */
-  --graphite: #101317;
-  --graphite-glow: #1c2128;
-  --graphite-glow-clear: rgba(28, 33, 40, 0);
-  --slate: #181c21;
-  --slate-raised: #20252b;
-  --field: #0e1114;
-  --hairline: rgba(255, 255, 255, 0.07);
-  --wash: rgba(255, 255, 255, 0.05);
-  --wash-strong: rgba(255, 255, 255, 0.09);
-  --wash-faint: rgba(255, 255, 255, 0.025);
-  --wash-cell: rgba(255, 255, 255, 0.03);
-  --wash-item: rgba(255, 255, 255, 0.06);
-  --ring-strong: rgba(255, 255, 255, 0.1);
-  --hover-mix: #ffffff;
-  --focus-mix: #ffffff;
-  --accent-lift: #ffffff;
-  --scrollbar: rgba(255, 255, 255, 0.14);
-
-  /* Shadows (whole stacks, because the light ones differ in structure as well as colour) */
-  --panel-shadow:
-    inset 0 0 0 1px rgba(255, 255, 255, 0.07),
-    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+  /* Card */
+  --card-tint: rgba(28, 28, 31, 0.48);
+  --card-solid: #151619;
+  --card-glow: #202226;
+  --card-glow-clear: rgba(32, 34, 38, 0);
+  --card-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.08),
     0 10px 22px rgba(0, 0, 0, 0.45),
     0 1px 3px rgba(0, 0, 0, 0.5);
-  --menu-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08), 0 14px 30px rgba(0, 0, 0, 0.55);
-  --track-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.45);
-  --thumb-shadow:
-    0 2px 6px rgba(0, 0, 0, 0.55),
-    0 0 0 1px rgba(0, 0, 0, 0.25);
-  --knob-shadow: 0 1px 3px rgba(0, 0, 0, 0.45);
 
-  /* Ink */
-  --porcelain: #eef1f4;
-  --fog: #8b939c;
-  --dim: #59616a;
+  /* Ink: the primary label, the secondary one for notes, and the glyph colour of quiet icons */
+  --ink: rgba(255, 255, 255, 0.96);
+  --ink-2: rgba(255, 255, 255, 0.86);
+  --ink-3: rgba(255, 255, 255, 0.58);
 
-  /* Signals and the accent (the TV glows in frost) */
-  --signal: #ff9f8a;
-  --frost: #a7d7f1;
-  --on-tint: #0d1a26;
-  --accent-off: #9aa2ab;
+  /* Modules, raised parts and their edges */
+  --module: rgba(255, 255, 255, 0.09);
+  --module-hover: rgba(255, 255, 255, 0.14);
+  --module-press: rgba(255, 255, 255, 0.2);
+  --raised: rgba(255, 255, 255, 0.16);
+  --well: rgba(0, 0, 0, 0.2);
+  --edge-top: rgba(255, 255, 255, 0.22);
+  --edge-ring: rgba(255, 255, 255, 0.08);
+  --edge-low: rgba(0, 0, 0, 0.12);
+  --sep: rgba(255, 255, 255, 0.1);
+  --module-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
+  --scrollbar: rgba(255, 255, 255, 0.26);
 
-  /* Controls */
-  --switch-off: #2a3037;
-  --switch-knob: #c3cad1;
-  --switch-knob-on: #ffffff;
-  --thumb-top: #fbfcfd;
-  --thumb-bottom: #dce2e8;
+  /* Menus */
+  --menu-bg: rgba(60, 60, 64, 0.74);
+  --menu-edge: rgba(255, 255, 255, 0.14);
+  --menu-shadow: 0 0 0 1px rgba(0, 0, 0, 0.35), 0 16px 36px rgba(0, 0, 0, 0.5);
 
-  /* The TV: bezel, stand and chin, the screen when off and when on, and the text drawn on a lit screen */
-  --tv-bezel-top: #1a1f26;
-  --tv-bezel-low: #06080b;
-  --tv-bezel-line: rgba(255, 255, 255, 0.12);
-  --tv-stand: #1d2228;
-  --tv-chin: #3b434d;
-  --tv-screen-off-top: #1b2027;
-  --tv-screen-off-low: #0a0c0f;
-  --tv-screen-on-top: #2f6a94;
-  --tv-screen-on-low: #10283c;
-  --tv-text: #f2f6fa;
-  --tv-text-dim: rgba(242, 246, 250, 0.72);
-  --tv-glass: #ffffff;
-  --tv-contact: #000000;
-  --contact-opacity: 0.6;
-  --glow-opacity: 0.14;
+  /* The one accent: the system's where the page can read it (macOS), system blue otherwise */
+  --accent: #0a84ff;
+  --on-accent: #ffffff;
+  /* Filled controls carry white text: a touch deeper than the accent itself so that it reads at 4.5:1 */
+  --accent-fill: color-mix(in srgb, var(--accent) 86%, black);
+  --accent-ring: color-mix(in srgb, var(--accent) 62%, transparent);
+  --danger: #ff6b61;
 
+  /* Switch and slider */
+  --switch-off: rgba(255, 255, 255, 0.24);
+  --knob: #ffffff;
+  --knob-shadow: 0 1px 1px rgba(0, 0, 0, 0.2), 0 2px 5px rgba(0, 0, 0, 0.3);
+  --track: rgba(255, 255, 255, 0.16);
+  --fill: rgba(255, 255, 255, 0.96);
+  --fill-edge: rgba(0, 0, 0, 0.1);
+
+  /* The TV: a thin bezel with a hairline highlight, black glass when off, a graphite glow when on */
+  --tv-bezel: #151517;
+  --tv-bezel-line: rgba(255, 255, 255, 0.22);
+  --tv-glass: #070708;
+  --tv-lit-top: #54545a;
+  --tv-lit-low: #26262a;
+  --tv-sheen: #ffffff;
+  --tv-sheen-opacity: 0.12;
+  --tv-stand: rgba(255, 255, 255, 0.36);
+  --tv-contact: rgba(0, 0, 0, 0.55);
+  --tv-halo: rgba(255, 255, 255, 0.2);
+  --tv-text: #ffffff;
+  --tv-text-dim: rgba(255, 255, 255, 0.76);
+
+  /* The drawn remote: a graphite body with soft shading, raised keys, a recessed ring around the OK key */
+  --rm-body-top: #3b3c41;
+  --rm-body-mid: #27282c;
+  --rm-body-low: #1a1b1e;
+  --rm-edge: rgba(255, 255, 255, 0.2);
+  --rm-body-shadow: 0 22px 30px -12px rgba(0, 0, 0, 0.6), 0 3px 8px rgba(0, 0, 0, 0.4);
+  --rm-key-top: #4a4b50;
+  --rm-key-low: #313237;
+  --rm-key-edge: rgba(255, 255, 255, 0.22);
+  --rm-key-shadow: 0 1px 1px rgba(0, 0, 0, 0.55), 0 3px 5px -1px rgba(0, 0, 0, 0.5);
+  --rm-ink: rgba(255, 255, 255, 0.94);
+  --rm-ink-2: rgba(255, 255, 255, 0.72);
+  --rm-ring-hi: #333438;
+  --rm-ring-low: #1b1c1f;
+  --rm-line: rgba(255, 255, 255, 0.1);
+  --rm-press: rgba(0, 0, 0, 0.38);
+  --rm-led-off: #54555b;
+
+  /* App badges: the official marks of Netflix (red N on black) and YouTube (red mark on white), see TV_APPS in labels.js; Prime Video
+     and Disney+ are drawn colour blocks with an initial */
+  --badge-netflix-bg: #000000;
+  --badge-netflix-fg: #e50914;
+  --badge-youtube-bg: #ffffff;
+  --badge-youtube-fg: #ff0000;
+  --badge-prime-bg: #0b6fd6;
+  --badge-prime-fg: #ffffff;
+  --badge-disney-bg: #12337f;
+  --badge-disney-fg: #ffffff;
+  --badge-ring: rgba(255, 255, 255, 0.16);
+
+  /* Hairlines are half a pixel on a 2x screen */
+  --hair: 1px;
+
+  /* Motion: springs sampled from a damped spring (see spring.js). Values never overshoot; presses and the knob may, a little. */
+  --spring: linear(0, 0.009, 0.034, 0.07, 0.115, 0.165, 0.219, 0.275, 0.33, 0.386, 0.439, 0.491, 0.54, 0.586, 0.629, 0.669, 0.706, 0.739, 0.77, 0.798, 0.823, 0.846, 0.866, 0.884, 0.9, 0.914, 0.927, 0.938, 0.948, 0.956, 0.963, 0.97, 0.975, 0.98, 0.984, 0.987, 1);
+  --spring-soft: linear(0, 0.01, 0.037, 0.078, 0.127, 0.184, 0.245, 0.308, 0.371, 0.434, 0.494, 0.552, 0.607, 0.658, 0.705, 0.749, 0.788, 0.823, 0.855, 0.883, 0.907, 0.928, 0.946, 0.962, 0.975, 0.986, 0.995, 1.002, 1.008, 1.012, 1.015, 1.017, 1.019, 1.02, 1.02, 1.02, 1.019, 1.018, 1.017, 1.016, 1);
+  --spring-pop: linear(0, 0.011, 0.041, 0.086, 0.142, 0.205, 0.273, 0.344, 0.416, 0.487, 0.555, 0.619, 0.68, 0.736, 0.787, 0.833, 0.874, 0.91, 0.941, 0.967, 0.989, 1.007, 1.022, 1.033, 1.042, 1.048, 1.052, 1.054, 1.054, 1.054, 1.052, 1.049, 1.046, 1.043, 1.039, 1.035, 1.031, 1.027, 1.024, 1.02, 1.017, 1.014, 1.011, 1.009, 1);
   --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
+
+  --font: Bahnschrift, 'Segoe UI Variable Text', 'Segoe UI', system-ui, sans-serif;
+}
+
+@media (min-resolution: 2dppx) {
+  :root {
+    --hair: 0.5px;
+  }
 }
 
 @media (prefers-color-scheme: light) {
   :root {
-    /* Surfaces: a soft porcelain card, white cards on it, pale grey wells */
-    --graphite: #e4e8ed;
-    --graphite-glow: #f3f5f8;
-    --graphite-glow-clear: rgba(243, 245, 248, 0);
-    --slate: #f4f6f8;
-    --slate-raised: #ffffff;
-    --field: #e8ecf0;
-    --hairline: rgba(24, 36, 50, 0.09);
-    --wash: rgba(24, 36, 50, 0.05);
-    --wash-strong: rgba(24, 36, 50, 0.1);
-    --wash-faint: rgba(24, 36, 50, 0.03);
-    --wash-cell: rgba(24, 36, 50, 0.04);
-    --wash-item: rgba(24, 36, 50, 0.06);
-    --ring-strong: rgba(24, 36, 50, 0.14);
-    --hover-mix: #161b21;
-    --focus-mix: #0b1620;
-    --accent-lift: #0b1620;
-    --scrollbar: rgba(24, 36, 50, 0.24);
-
-    --panel-shadow:
-      inset 0 0 0 1px rgba(24, 36, 50, 0.08),
+    --card-tint: rgba(255, 255, 255, 0.3);
+    --card-solid: #e6e8ec;
+    --card-glow: #f4f5f8;
+    --card-glow-clear: rgba(244, 245, 248, 0);
+    --card-shadow:
+      inset 0 0 0 1px rgba(20, 24, 32, 0.08),
       inset 0 1px 0 rgba(255, 255, 255, 0.9),
-      0 10px 24px rgba(24, 36, 50, 0.26),
-      0 1px 3px rgba(24, 36, 50, 0.3);
-    --menu-shadow: inset 0 0 0 1px rgba(24, 36, 50, 0.1), 0 14px 30px rgba(24, 36, 50, 0.28);
-    --track-shadow: inset 0 1px 3px rgba(24, 36, 50, 0.16);
-    --thumb-shadow:
-      0 2px 6px rgba(24, 36, 50, 0.32),
-      0 0 0 1px rgba(24, 36, 50, 0.16);
-    --knob-shadow: 0 1px 3px rgba(24, 36, 50, 0.35);
+      0 10px 24px rgba(20, 24, 32, 0.26),
+      0 1px 3px rgba(20, 24, 32, 0.3);
 
-    /* Ink */
-    --porcelain: #161b21;
-    --fog: #505a65;
-    --dim: #5d6772;
+    --ink: rgba(0, 0, 0, 0.88);
+    --ink-2: rgba(0, 0, 0, 0.7);
+    --ink-3: rgba(0, 0, 0, 0.5);
 
-    /* Deeper tints, so lines and icons stay visible on a light surface and white text fits on a filled button */
-    --signal: #b8321f;
-    --frost: #1d78ad;
-    --on-tint: #ffffff;
-    --accent-off: #78838f;
+    --module: rgba(255, 255, 255, 0.6);
+    --module-hover: rgba(255, 255, 255, 0.8);
+    --module-press: rgba(255, 255, 255, 0.95);
+    --raised: #ffffff;
+    --well: rgba(0, 0, 0, 0.07);
+    --edge-top: rgba(255, 255, 255, 0.95);
+    --edge-ring: rgba(0, 0, 0, 0.06);
+    --edge-low: rgba(0, 0, 0, 0.04);
+    --sep: rgba(0, 0, 0, 0.09);
+    --module-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+    --scrollbar: rgba(0, 0, 0, 0.3);
 
-    --switch-off: #828d99;
-    --switch-knob: #ffffff;
-    --thumb-top: #ffffff;
-    --thumb-bottom: #e6ebf0;
+    --menu-bg: rgba(250, 250, 252, 0.8);
+    --menu-edge: rgba(255, 255, 255, 0.9);
+    --menu-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1), 0 14px 32px rgba(0, 0, 0, 0.22);
 
-    /* The TV stays black on a light card; its screen is a deeper blue, its text white */
-    --tv-bezel-top: #2b323b;
-    --tv-bezel-low: #13171c;
-    --tv-bezel-line: rgba(24, 36, 50, 0.35);
-    --tv-stand: #59636f;
-    --tv-chin: #475160;
-    --tv-screen-off-top: #303842;
-    --tv-screen-off-low: #161b21;
-    --tv-screen-on-top: #3f8fc6;
-    --tv-screen-on-low: #1b5b8a;
-    --tv-text: #ffffff;
-    --tv-text-dim: rgba(255, 255, 255, 0.82);
-    --tv-glass: #ffffff;
-    --tv-contact: #1b2c3c;
-    --contact-opacity: 0.32;
-    --glow-opacity: 0.2;
+    --accent: #007aff;
+    --danger: #d92d20;
+
+    --switch-off: rgba(0, 0, 0, 0.16);
+    --knob-shadow: 0 1px 1px rgba(0, 0, 0, 0.12), 0 2px 5px rgba(0, 0, 0, 0.22);
+    --track: rgba(0, 0, 0, 0.15);
+    --fill: #ffffff;
+    --fill-edge: rgba(0, 0, 0, 0.1);
+
+    --tv-bezel: #2a2a2d;
+    --tv-bezel-line: rgba(0, 0, 0, 0.28);
+    --tv-glass: #121214;
+    --tv-lit-top: #5e5e64;
+    --tv-lit-low: #2e2e32;
+    --tv-sheen-opacity: 0.16;
+    --tv-stand: rgba(0, 0, 0, 0.42);
+    --tv-contact: rgba(20, 24, 32, 0.34);
+    --tv-halo: rgba(255, 255, 255, 0.9);
+
+    --rm-body-top: #fcfcfd;
+    --rm-body-mid: #eff0f3;
+    --rm-body-low: #dddee3;
+    --rm-edge: rgba(255, 255, 255, 1);
+    --rm-body-shadow: 0 20px 28px -12px rgba(30, 34, 44, 0.4), 0 3px 8px rgba(30, 34, 44, 0.2);
+    --rm-key-top: #ffffff;
+    --rm-key-low: #e7e8ec;
+    --rm-key-edge: rgba(255, 255, 255, 1);
+    --rm-key-shadow: 0 1px 1px rgba(30, 34, 44, 0.28), 0 3px 5px -1px rgba(30, 34, 44, 0.22);
+    --rm-ink: rgba(0, 0, 0, 0.84);
+    --rm-ink-2: rgba(0, 0, 0, 0.62);
+    --rm-ring-hi: #e4e5e9;
+    --rm-ring-low: #cfd0d6;
+    --rm-line: rgba(0, 0, 0, 0.1);
+    --rm-press: rgba(0, 0, 0, 0.16);
+    --rm-led-off: #b6b7bd;
+
+    --badge-ring: rgba(0, 0, 0, 0.16);
   }
+}
+
+/* macOS reads its own accent; the keyword resolves to a colour of the system, with the text colour that goes on it. */
+@supports (color: AccentColor) {
+  :root[data-platform='darwin'] {
+    --accent: AccentColor;
+    --on-accent: AccentColorText;
+  }
+}
+
+/* With reduced transparency the system draws its material opaque; the modules follow and keep their separation. */
+@media (prefers-reduced-transparency: reduce) {
+  :root {
+    --card-tint: rgba(28, 28, 31, 0.7);
+    --menu-bg: rgb(58, 58, 62);
+  }
+}
+
+@media (prefers-reduced-transparency: reduce) and (prefers-color-scheme: light) {
+  :root {
+    --card-tint: rgba(255, 255, 255, 0.7);
+    --menu-bg: rgb(250, 250, 252);
+  }
+}
+
+:root[data-platform='darwin'] {
+  --font: system-ui, -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif;
 }
 
 * {
@@ -168,18 +240,19 @@ body {
   background: transparent;
 }
 
+/* On Windows the window is a transparent frame with room for the card's shadow; on macOS the window is the card. */
 body {
   padding: 20px;
-  font-family: Bahnschrift, 'Segoe UI Variable Text', 'Segoe UI', system-ui, sans-serif;
+  font-family: var(--font);
   font-size: 14px;
-  color: var(--porcelain);
+  color: var(--ink);
   cursor: default;
   user-select: none;
+  -webkit-font-smoothing: antialiased;
 }
 
-/* On macOS the panel hangs just under the menu bar. */
 :root[data-platform='darwin'] body {
-  padding-top: 6px;
+  padding: 0;
 }
 
 button {
@@ -189,6 +262,7 @@ button {
   color: inherit;
   background: none;
   cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
 }
 
 button:disabled {
@@ -196,8 +270,8 @@ button:disabled {
 }
 
 :focus-visible {
-  outline: 2px solid color-mix(in srgb, var(--accent) 70%, var(--focus-mix));
-  outline-offset: 2px;
+  outline: 3px solid var(--accent-ring);
+  outline-offset: 1px;
 }
 
 svg.lucide {
@@ -211,25 +285,41 @@ svg.lucide {
 /* Panel */
 
 .panel {
-  --tint: var(--frost);
-  --accent: var(--accent-off);
   position: relative;
+  display: flex;
+  flex-direction: column;
   width: 372px;
   height: 496px;
   overflow: hidden;
   border-radius: 26px;
   background:
-    radial-gradient(130% 60% at 50% 0%, var(--graphite-glow) 0%, var(--graphite-glow-clear) 72%),
-    var(--graphite);
-  box-shadow: var(--panel-shadow);
+    radial-gradient(130% 60% at 50% 0%, var(--card-glow) 0%, var(--card-glow-clear) 72%),
+    var(--card-solid);
+  box-shadow: var(--card-shadow);
+  transform-origin: 50% 0;
 }
 
-.panel[data-power='on'] {
-  --accent: var(--tint);
+/* macOS: the system paints the material, the corners and the shadow; the page only adds a tint over the material. The tint
+   is a layer of its own, so that the panel can scale in without dragging a visible edge of tint with it. */
+.card-tint {
+  display: none;
+}
+
+:root[data-platform='darwin'] .card-tint {
+  display: block;
+  position: fixed;
+  inset: 0;
+  background: var(--card-tint);
+}
+
+:root[data-platform='darwin'] .panel {
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
 }
 
 .panel.entering {
-  animation: panel-in 0.24s var(--ease-out);
+  animation: panel-in 0.5s var(--spring-soft) both;
 }
 
 .panel.asleep * {
@@ -241,44 +331,69 @@ svg.lucide {
 }
 
 .panel[data-online='false'] .setpoint-value {
-  color: var(--fog);
+  color: var(--ink-2);
 }
 
 .panel:is([data-loading='true'], [data-online='false']) :is(.power, .pill, .slider-row, .strip) {
-  opacity: 0.35;
+  opacity: 0.38;
   pointer-events: none;
-}
-
-:root[data-platform='darwin'] .panel {
-  --enter-from: -12px;
 }
 
 @keyframes panel-in {
   from {
     opacity: 0;
-    transform: translateY(var(--enter-from, 12px)) scale(0.985);
+    transform: translateY(-10px) scale(0.955);
+  }
+  35% {
+    opacity: 1;
   }
 }
 
-.view {
-  position: absolute;
-  inset: 0;
+/* On macOS the window itself fades (main.js), so the page only springs. */
+:root[data-platform='darwin'] .panel.entering {
+  animation-name: panel-in-mac;
+}
+
+@keyframes panel-in-mac {
+  from {
+    transform: translateY(-10px) scale(0.955);
+  }
+}
+
+/* The stage holds the main view and the settings view. In the compact layout it is not positioned, so the settings view
+   covers the whole panel, header and footer included; in the tabbed layout it is the room between the tab bar and the footer. */
+.stage {
+  flex: 1;
   display: flex;
   flex-direction: column;
+  min-height: 0;
+}
+
+.view {
+  display: flex;
+  flex-direction: column;
+}
+
+.view-main {
+  flex: 1;
+  min-height: 0;
 }
 
 .view-main > * {
   flex: none;
 }
 
-.view-main {
+.view-main,
+.top,
+.status {
   transition:
-    transform 0.34s var(--ease-out),
-    opacity 0.34s;
+    transform 0.5s var(--spring),
+    opacity 0.4s var(--ease-out);
 }
 
-.panel.settings-open .view-main {
-  transform: translateX(-16%);
+.panel.settings-open .view-main,
+.panel[data-style='compacto'].settings-open :is(.top, .status) {
+  transform: translateX(-24%) scale(0.96);
   opacity: 0;
 }
 
@@ -292,17 +407,35 @@ svg.lucide {
   padding: 16px 16px 0 20px;
 }
 
+.top-text {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.device-sub {
+  display: none;
+  overflow: hidden;
+  font-size: 12px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: var(--ink-2);
+}
+
 .device-name {
   min-width: 0;
   overflow: hidden;
   font-size: 15px;
-  font-weight: 500;
+  font-weight: 600;
+  letter-spacing: -0.01em;
   white-space: nowrap;
   text-overflow: ellipsis;
-  color: var(--porcelain);
+  color: var(--ink);
 }
 
 .power {
+  position: relative;
   display: grid;
   flex: none;
   place-items: center;
@@ -310,35 +443,47 @@ svg.lucide {
   height: 40px;
   border-radius: 50%;
   font-size: 18px;
-  color: var(--fog);
-  background: var(--wash-faint);
-  box-shadow: inset 0 0 0 1px var(--ring-strong);
+  color: var(--ink-2);
+  background: var(--module);
+  box-shadow:
+    inset 0 var(--hair) 0 var(--edge-top),
+    inset 0 0 0 var(--hair) var(--edge-ring),
+    var(--module-shadow);
   transition:
     color 0.3s,
-    background 0.3s,
-    box-shadow 0.5s var(--ease-out),
-    transform 0.15s;
+    background-color 0.3s,
+    transform 0.45s var(--spring-pop);
 }
 
 .power:hover {
-  color: var(--porcelain);
-  background: var(--wash);
+  background: var(--module-hover);
 }
 
 .power:active {
-  transform: scale(0.94);
+  transform: scale(0.9);
+  transition-duration: 0.12s;
 }
 
 .panel[data-power='on'] .power {
-  color: var(--porcelain);
-  background: color-mix(in srgb, var(--tint) 10%, transparent);
+  color: var(--on-accent);
+  background: var(--accent-fill);
   box-shadow:
-    inset 0 0 0 1px color-mix(in srgb, var(--tint) 55%, transparent),
-    0 0 0 4px color-mix(in srgb, var(--tint) 8%, transparent),
-    0 0 22px color-mix(in srgb, var(--tint) 30%, transparent);
+    inset 0 var(--hair) 0 rgba(255, 255, 255, 0.35),
+    0 1px 2px rgba(0, 0, 0, 0.2);
 }
 
-/* The TV: a thin-bezel screen on a small stand. It glows when on, and its two lines of text sit on the screen. */
+.panel[data-power='on'] .power svg {
+  animation: power-in 0.6s var(--spring-pop);
+}
+
+@keyframes power-in {
+  from {
+    transform: scale(0.7) rotate(-30deg);
+    opacity: 0.4;
+  }
+}
+
+/* The TV: a thin-bezel screen on a slim stand. It blooms when it comes on, and its two lines of text sit on the screen. */
 
 .hero {
   position: relative;
@@ -346,78 +491,102 @@ svg.lucide {
   margin: 0;
 }
 
+/* A restrained neutral glow behind the screen */
+.hero::before {
+  content: '';
+  position: absolute;
+  top: 66px;
+  left: 50%;
+  width: 330px;
+  height: 150px;
+  margin: -75px 0 0 -165px;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, var(--tv-halo), transparent);
+  opacity: 0;
+  transform: scale(0.82);
+  transition:
+    opacity 0.45s var(--ease-out),
+    transform 0.45s var(--ease-out);
+  pointer-events: none;
+}
+
+.panel[data-power='on'] .hero::before {
+  opacity: 0.2;
+  transform: none;
+  transition:
+    opacity 1s var(--ease-out),
+    transform 1s var(--spring);
+}
+
 .scene {
+  position: relative;
   display: block;
   width: 100%;
   height: 100%;
   overflow: visible;
 }
 
-.halo {
-  fill: var(--tint);
-  opacity: 0;
-  transition: opacity 0.9s;
-}
-
-.panel[data-power='on'] .halo {
-  opacity: var(--glow-opacity);
-}
-
 .contact {
   fill: var(--tv-contact);
-  opacity: var(--contact-opacity);
 }
 
-/* The gradients take their colours from these stops, so the theme and the power state can reach them. */
-.bezel-top {
-  stop-color: var(--tv-bezel-top);
-}
-
-.bezel-low {
-  stop-color: var(--tv-bezel-low);
-}
-
-.bezel-line {
-  fill: none;
+.bezel {
+  fill: var(--tv-bezel);
   stroke: var(--tv-bezel-line);
   stroke-width: 1;
 }
 
-.screen-top {
-  stop-color: var(--tv-screen-off-top);
-  transition: stop-color 0.7s;
+.screen-off {
+  fill: var(--tv-glass);
 }
 
-.screen-low {
-  stop-color: var(--tv-screen-off-low);
-  transition: stop-color 0.7s;
+.lit-top {
+  stop-color: var(--tv-lit-top);
 }
 
-.panel[data-power='on'] .screen-top {
-  stop-color: var(--tv-screen-on-top);
+.lit-low {
+  stop-color: var(--tv-lit-low);
 }
 
-.panel[data-power='on'] .screen-low {
-  stop-color: var(--tv-screen-on-low);
+/* The lit screen is a layer of its own: it fades and swells in, so the screen blooms instead of switching. */
+.screen-lit {
+  opacity: 0;
+  transform: scale(0.94);
+  transform-box: fill-box;
+  transform-origin: 50% 50%;
+  transition:
+    opacity 0.4s var(--ease-out),
+    transform 0.4s var(--ease-out);
 }
 
-.chin {
-  fill: var(--tv-chin);
+.panel[data-power='on'] .screen-lit {
+  opacity: 1;
+  transform: none;
+  transition:
+    opacity 0.7s var(--ease-out),
+    transform 0.9s var(--spring);
 }
 
-.stand-neck,
-.stand-base {
-  fill: var(--tv-stand);
-}
-
-.glass {
+.sheen {
+  fill: url(#g-sheen);
   pointer-events: none;
 }
 
-.glass-top,
-.glass-mid,
-.glass-low {
-  stop-color: var(--tv-glass);
+.sheen-top,
+.sheen-low {
+  stop-color: var(--tv-sheen);
+}
+
+.sheen-top {
+  stop-opacity: var(--tv-sheen-opacity);
+}
+
+.sheen-low {
+  stop-opacity: 0;
+}
+
+.stand {
+  fill: var(--tv-stand);
 }
 
 .tv-text {
@@ -433,11 +602,18 @@ svg.lucide {
   height: 104px;
   padding: 0 18px;
   opacity: 0;
-  transition: opacity 0.6s;
+  transform: translateY(4px);
+  transition:
+    opacity 0.3s,
+    transform 0.3s var(--ease-out);
 }
 
 .panel[data-power='on'] .tv-text {
   opacity: 1;
+  transform: none;
+  transition:
+    opacity 0.6s 0.1s,
+    transform 0.8s 0.1s var(--spring);
 }
 
 .tv-app,
@@ -452,7 +628,8 @@ svg.lucide {
 
 .tv-app {
   font-size: 22px;
-  font-weight: 500;
+  font-weight: 600;
+  letter-spacing: -0.015em;
   color: var(--tv-text);
 }
 
@@ -468,7 +645,7 @@ svg.lucide {
   align-items: flex-end;
   justify-content: space-between;
   margin-top: -4px;
-  padding: 0 16px 0 18px;
+  padding: 0 16px 0 20px;
 }
 
 .setpoint {
@@ -479,49 +656,99 @@ svg.lucide {
   overflow: hidden;
 }
 
-.setpoint-value {
+/* The number rolls like an odometer: the new value arrives on #volume while the old one leaves on the ghost beside it. They are
+   siblings, so that the old number does not fade with the new one. */
+.setpoint {
+  position: relative;
+}
+
+.setpoint-value,
+.setpoint-ghost {
   display: inline-block;
-  font-size: 76px;
-  font-weight: 300;
-  font-stretch: 87.5%;
+  font-size: 72px;
+  font-weight: 200;
   line-height: 66px;
-  letter-spacing: -0.035em;
+  letter-spacing: -0.04em;
   font-variant-numeric: tabular-nums;
-  color: var(--porcelain);
+  color: var(--ink);
   transition: color 0.4s;
 }
 
-.panel:is([data-power='off'], [data-muted='true']) .setpoint-value {
-  color: var(--fog);
+.setpoint-ghost {
+  position: absolute;
+  top: 0;
+  left: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+:root[data-platform='win32'] :is(.setpoint-value, .setpoint-ghost) {
+  font-size: 76px;
+  font-weight: 300;
+  font-stretch: 87.5%;
+}
+
+.panel:is([data-power='off'], [data-muted='true']) :is(.setpoint-value, .setpoint-ghost) {
+  color: var(--ink-2);
 }
 
 .setpoint-value.roll-up {
-  animation: roll-up 0.32s var(--ease-out);
+  animation: roll-in-up 0.5s var(--spring) both;
 }
 
 .setpoint-value.roll-down {
-  animation: roll-down 0.32s var(--ease-out);
+  animation: roll-in-down 0.5s var(--spring) both;
 }
 
-@keyframes roll-up {
+.setpoint-ghost.roll-up {
+  animation: roll-out-up 0.4s var(--spring) both;
+}
+
+.setpoint-ghost.roll-down {
+  animation: roll-out-down 0.4s var(--spring) both;
+}
+
+@keyframes roll-in-up {
   from {
     opacity: 0;
-    transform: translateY(40%);
+    transform: translateY(55%);
   }
 }
 
-@keyframes roll-down {
+@keyframes roll-in-down {
   from {
     opacity: 0;
-    transform: translateY(-40%);
+    transform: translateY(-55%);
+  }
+}
+
+@keyframes roll-out-up {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-55%);
+  }
+}
+
+@keyframes roll-out-down {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(55%);
   }
 }
 
 .setpoint-unit {
-  margin-top: 12px;
-  font-size: 14px;
+  margin-top: 13px;
+  font-size: 13px;
   font-weight: 500;
-  color: var(--fog);
+  color: var(--ink-2);
 }
 
 .pill {
@@ -530,51 +757,87 @@ svg.lucide {
   gap: 9px;
   height: 40px;
   margin-bottom: 6px;
-  padding: 0 8px 0 14px;
+  padding: 0 7px 0 13px;
   border-radius: 999px;
   font-size: 14px;
-  background: var(--slate);
-  box-shadow: inset 0 0 0 1px var(--hairline);
-  transition: background 0.2s;
+  font-weight: 500;
+  background: var(--module);
+  box-shadow:
+    inset 0 var(--hair) 0 var(--edge-top),
+    inset 0 0 0 var(--hair) var(--edge-ring),
+    var(--module-shadow);
+  transition:
+    background-color 0.2s,
+    transform 0.45s var(--spring-pop);
 }
 
 .pill:hover {
-  background: var(--slate-raised);
+  background: var(--module-hover);
 }
 
-.pill svg.lucide {
-  font-size: 16px;
-  color: var(--fog);
-  transition: color 0.3s;
+.pill:active {
+  transform: scale(0.96);
+  transition-duration: 0.12s;
 }
 
-.pill[aria-checked='true'] svg.lucide {
-  color: var(--accent);
+/* Two speakers stacked: the plain one while the sound is on, the crossed one while it is muted. */
+.pill-icon {
+  position: relative;
+  display: grid;
+  width: 18px;
+  height: 18px;
+  font-size: 17px;
+  color: var(--ink-2);
 }
 
+.pill-icon > * {
+  grid-area: 1 / 1;
+  display: grid;
+  place-items: center;
+  transition:
+    opacity 0.25s var(--ease-out),
+    transform 0.45s var(--spring-pop);
+}
+
+.pill-icon .icon-muted,
+.pill[aria-checked='true'] .pill-icon .icon-sound {
+  opacity: 0;
+  transform: scale(0.5);
+}
+
+.pill[aria-checked='true'] .pill-icon .icon-muted {
+  opacity: 1;
+  transform: none;
+}
+
+.pill[aria-checked='true'] .pill-icon {
+  color: var(--ink);
+}
+
+/* Switches: the macOS and iOS kind. The knob stretches under the finger and settles with a small spring. */
 .switch {
   position: relative;
   flex: none;
-  width: 38px;
-  height: 24px;
+  width: 42px;
+  height: 26px;
   border-radius: 999px;
   background: var(--switch-off);
-  transition: background 0.3s;
+  transition: background-color 0.3s;
 }
 
 .switch::after {
   content: '';
   position: absolute;
-  top: 3px;
-  left: 3px;
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  background: var(--switch-knob);
+  top: 2px;
+  left: 2px;
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  background: var(--knob);
   box-shadow: var(--knob-shadow);
   transition:
-    transform 0.3s var(--ease-out),
-    background 0.3s;
+    transform 0.5s var(--spring-pop),
+    width 0.25s var(--spring-soft);
 }
 
 :is([aria-checked='true'] > .switch, .switch[aria-checked='true']) {
@@ -582,18 +845,26 @@ svg.lucide {
 }
 
 :is([aria-checked='true'] > .switch, .switch[aria-checked='true'])::after {
-  background: var(--switch-knob-on);
-  transform: translateX(14px);
+  transform: translateX(16px);
 }
 
-/* Volume slider */
+:is(button:active > .switch, .switch:active)::after {
+  width: 27px;
+}
+
+:is([aria-checked='true'] > .switch:active, button[aria-checked='true']:active > .switch, .switch[aria-checked='true']:active)::after {
+  transform: translateX(11px);
+}
+
+/* Volume slider: a fat capsule with a bright fill. The fill is a full-width capsule that slides under the track's edge,
+   so it keeps its round end and only ever moves with a transform. */
 
 .slider-row {
   display: grid;
   grid-template-columns: 40px 1fr 40px;
   align-items: center;
   gap: 10px;
-  margin-top: 14px;
+  margin-top: 12px;
   padding: 0 16px;
 }
 
@@ -604,52 +875,78 @@ svg.lucide {
   height: 40px;
   border-radius: 50%;
   font-size: 17px;
-  background: var(--slate);
-  box-shadow: inset 0 0 0 1px var(--hairline);
+  background: var(--module);
+  box-shadow:
+    inset 0 var(--hair) 0 var(--edge-top),
+    inset 0 0 0 var(--hair) var(--edge-ring),
+    var(--module-shadow);
   transition:
-    background 0.2s,
+    background-color 0.2s,
     opacity 0.2s,
-    transform 0.12s;
+    transform 0.45s var(--spring-pop);
 }
 
 .round:hover:not(:disabled) {
-  background: var(--slate-raised);
+  background: var(--module-hover);
 }
 
 .round:active:not(:disabled) {
-  transform: scale(0.92);
+  transform: scale(0.9);
+  transition-duration: 0.12s;
 }
 
 .round:disabled {
-  opacity: 0.35;
+  opacity: 0.38;
 }
 
 .track {
-  height: 40px;
-  padding: 0 6px;
-  border-radius: 14px;
-  background:
-    linear-gradient(
-        90deg,
-        color-mix(in srgb, var(--accent) 5%, transparent),
-        color-mix(in srgb, var(--accent) 40%, transparent)
-      )
-      0 0 / calc(14px + (100% - 28px) * var(--pct)) 100% no-repeat,
-    var(--slate);
+  --pct: 0.5;
+  position: relative;
+  height: 44px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--track);
   box-shadow:
-    inset 0 0 0 1px var(--hairline),
-    var(--track-shadow);
-  transition: --pct 0.3s var(--ease-out);
+    inset 0 var(--hair) 0 var(--edge-ring),
+    inset 0 1px 2px rgba(0, 0, 0, 0.1);
+  transition: transform 0.4s var(--spring-pop);
+  isolation: isolate;
 }
 
-.track.dragging {
-  transition: none;
+.track::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: 999px;
+  background: var(--fill);
+  box-shadow: 0 0 0 var(--hair) var(--fill-edge), 2px 0 8px rgba(0, 0, 0, 0.18);
+  transform: translateX(calc((var(--pct) - 1) * 100%));
+  transition:
+    transform 0.55s var(--spring),
+    opacity 0.4s;
+  will-change: transform;
+}
+
+.panel:is([data-power='off'], [data-muted='true']) .track::before {
+  opacity: 0.5;
+}
+
+.track.dragging::before {
+  transition: opacity 0.4s;
+}
+
+.track:has(input:active) {
+  transform: scale(1.025);
 }
 
 .track input {
+  position: relative;
+  display: block;
   width: 100%;
   height: 100%;
   margin: 0;
+  border-radius: 999px;
   background: transparent;
   cursor: pointer;
   appearance: none;
@@ -659,33 +956,35 @@ svg.lucide {
   cursor: default;
 }
 
+.track:has(input:disabled) {
+  opacity: 0.38;
+}
+
+.track input:focus-visible {
+  outline-offset: 3px;
+}
+
 .track input::-webkit-slider-runnable-track {
   height: 100%;
   background: transparent;
 }
 
 .track input::-webkit-slider-thumb {
-  width: 16px;
-  height: 28px;
-  margin-top: 6px;
-  border-radius: 7px;
-  background: linear-gradient(var(--thumb-top), var(--thumb-bottom));
-  box-shadow: var(--thumb-shadow);
-  transition: transform 0.15s;
+  width: 0;
+  height: 44px;
+  border: 0;
+  background: transparent;
   appearance: none;
-}
-
-.track input:active::-webkit-slider-thumb {
-  transform: scaleY(1.07);
 }
 
 .scale {
   display: flex;
   justify-content: space-between;
-  padding: 7px 74px 0 74px;
-  font-size: 12px;
+  padding: 6px 74px 0 74px;
+  font-size: 11px;
+  font-weight: 500;
   font-variant-numeric: tabular-nums;
-  color: var(--dim);
+  color: var(--ink-2);
 }
 
 /* Strip: input, channel, picture and sound */
@@ -693,12 +992,16 @@ svg.lucide {
 .strip {
   display: grid;
   /* Input and channel are short; picture and sound take the room their names need */
-  grid-template-columns: 84px 80px 84px 96px;
-  margin: 14px 14px 0;
+  grid-template-columns: 82px 78px 86px 98px;
+  margin: 12px 14px 0;
   overflow: hidden;
   border-radius: 18px;
-  background: var(--slate);
-  box-shadow: inset 0 0 0 1px var(--hairline);
+  background: var(--module);
+  box-shadow:
+    inset 0 var(--hair) 0 var(--edge-top),
+    inset 0 0 0 var(--hair) var(--edge-ring),
+    inset 0 calc(var(--hair) * -1) 0 var(--edge-low),
+    var(--module-shadow);
 }
 
 .cell {
@@ -710,16 +1013,20 @@ svg.lucide {
   height: 80px;
   padding: 12px 8px 11px 12px;
   text-align: left;
-  transition: background 0.2s;
+  transition: background-color 0.2s;
 }
 
 .cell + .cell {
-  box-shadow: inset 1px 0 0 var(--hairline);
+  box-shadow: inset var(--hair) 0 0 var(--sep);
 }
 
 .cell:hover:not(:disabled),
 .cell[aria-expanded='true'] {
-  background: var(--wash-cell);
+  background: var(--module);
+}
+
+.cell:active:not(:disabled) {
+  background: var(--module-hover);
 }
 
 .cell:disabled {
@@ -740,13 +1047,13 @@ svg.lucide {
 
 .cell-icon {
   font-size: 18px;
-  color: var(--porcelain);
+  color: var(--ink);
 }
 
 .cell-chevron {
   font-size: 14px;
-  color: var(--dim);
-  transition: transform 0.25s var(--ease-out);
+  color: var(--ink-3);
+  transition: transform 0.45s var(--spring-pop);
 }
 
 .cell[aria-expanded='true'] .cell-chevron {
@@ -755,7 +1062,7 @@ svg.lucide {
 
 .cell-label {
   font-size: 12px;
-  color: var(--fog);
+  color: var(--ink-2);
 }
 
 .cell-value {
@@ -763,6 +1070,7 @@ svg.lucide {
   overflow: hidden;
   font-size: 14px;
   font-weight: 600;
+  letter-spacing: -0.005em;
   white-space: nowrap;
   text-overflow: ellipsis;
 }
@@ -775,24 +1083,27 @@ svg.lucide {
   height: 26px;
   border-radius: 50%;
   font-size: 13px;
-  background: var(--field);
-  box-shadow: inset 0 0 0 1px var(--wash-strong);
+  background: var(--module);
+  box-shadow:
+    inset 0 var(--hair) 0 var(--edge-top),
+    inset 0 0 0 var(--hair) var(--edge-ring);
   transition:
-    background 0.2s,
+    background-color 0.2s,
     opacity 0.2s,
-    transform 0.12s;
+    transform 0.45s var(--spring-pop);
 }
 
 .mini:hover:not(:disabled) {
-  background: var(--wash-strong);
+  background: var(--module-hover);
 }
 
 .mini:active:not(:disabled) {
-  transform: scale(0.92);
+  transform: scale(0.86);
+  transition-duration: 0.12s;
 }
 
 .mini:disabled {
-  opacity: 0.35;
+  opacity: 0.38;
 }
 
 /* Status */
@@ -808,13 +1119,14 @@ svg.lucide {
 }
 
 .status-message {
+  position: relative;
   display: flex;
   flex: 1;
   align-items: center;
   gap: 7px;
   min-width: 0;
   font-size: 13px;
-  color: var(--fog);
+  color: var(--ink-2);
 }
 
 .status-body {
@@ -849,16 +1161,52 @@ svg.lucide {
   font-size: 15px;
 }
 
+/* A new message fades in under the old one, which leaves a ghost that fades out above it. */
+.status-message.swap :is(.status-icon, .status-body) {
+  animation: status-in 0.4s var(--spring) both;
+}
+
+.status-ghost {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  pointer-events: none;
+  animation: status-out 0.3s var(--ease-out) both;
+}
+
+.status-ghost > span:last-child {
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+@keyframes status-in {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+}
+
+@keyframes status-out {
+  to {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+}
+
 .status-message[data-tone='ok'] .status-icon {
-  color: color-mix(in srgb, var(--accent) 80%, var(--accent-lift));
+  color: var(--ink-2);
 }
 
 .status-message[data-tone='busy'] .status-icon {
   animation: spin 0.9s linear infinite;
 }
 
-.status-message[data-tone='error'] {
-  color: var(--signal);
+.status-message[data-tone='error'] .status-icon {
+  color: var(--danger);
 }
 
 .status-actions {
@@ -872,9 +1220,15 @@ svg.lucide {
 
 .status-link {
   font-size: 12px;
-  color: var(--porcelain);
+  font-weight: 500;
+  color: var(--ink);
   text-decoration: underline;
   text-underline-offset: 3px;
+  transition: opacity 0.2s;
+}
+
+.status-link:active {
+  opacity: 0.6;
 }
 
 .footer-tools {
@@ -891,6 +1245,7 @@ svg.lucide {
 }
 
 .icon-button {
+  position: relative;
   display: grid;
   flex: none;
   place-items: center;
@@ -898,19 +1253,26 @@ svg.lucide {
   height: 36px;
   border-radius: 50%;
   font-size: 18px;
-  color: var(--fog);
+  color: var(--ink-2);
   transition:
-    background 0.2s,
-    color 0.2s;
+    background-color 0.2s,
+    color 0.2s,
+    transform 0.45s var(--spring-pop);
 }
 
 .icon-button:hover {
-  color: var(--porcelain);
-  background: var(--wash);
+  color: var(--ink);
+  background: var(--module);
+}
+
+.icon-button:active {
+  transform: scale(0.9);
+  background: var(--module-hover);
+  transition-duration: 0.12s;
 }
 
 .icon-button:disabled {
-  opacity: 0.35;
+  opacity: 0.38;
 }
 
 .icon-button.small {
@@ -921,8 +1283,7 @@ svg.lucide {
 
 /* A dot on the clock tells that a timer is running, one on the settings button that a new version is out. */
 .icon-button:is([data-active='true'], [data-update='true']) {
-  position: relative;
-  color: var(--porcelain);
+  color: var(--ink);
 }
 
 .icon-button:is([data-active='true'], [data-update='true'])::after {
@@ -934,14 +1295,17 @@ svg.lucide {
   height: 7px;
   border-radius: 50%;
   background: var(--accent);
-  box-shadow: 0 0 0 2px var(--graphite);
+  animation: dot-in 0.5s var(--spring-pop);
 }
 
-.icon-button[data-update='true']::after {
-  background: var(--frost);
+@keyframes dot-in {
+  from {
+    transform: scale(0);
+  }
 }
 
-/* Popup menus: option lists and the timer */
+/* Popup menus: option lists and the timer. They are translucent like a macOS menu and grow from the control that
+   opened them (popup.js sets the origin). */
 
 .menu {
   position: absolute;
@@ -949,11 +1313,14 @@ svg.lucide {
   min-width: 190px;
   max-width: 320px;
   padding: 6px;
-  border-radius: 15px;
-  background: var(--slate-raised);
-  box-shadow: var(--menu-shadow);
-  transform-origin: bottom left;
-  animation: menu-in 0.16s var(--ease-out);
+  border-radius: 14px;
+  background: var(--menu-bg);
+  box-shadow:
+    var(--menu-shadow),
+    inset 0 var(--hair) 0 var(--menu-edge);
+  backdrop-filter: blur(28px) saturate(1.8);
+  transform-origin: var(--origin-x, 50%) 100%;
+  animation: menu-in 0.38s var(--spring-soft) both;
 }
 
 .menu[hidden] {
@@ -963,7 +1330,10 @@ svg.lucide {
 @keyframes menu-in {
   from {
     opacity: 0;
-    transform: translateY(6px) scale(0.97);
+    transform: scale(0.82);
+  }
+  40% {
+    opacity: 1;
   }
 }
 
@@ -973,23 +1343,27 @@ svg.lucide {
   align-items: center;
   gap: 10px;
   width: 100%;
-  height: 36px;
+  height: 34px;
   padding: 0 10px;
-  border-radius: 10px;
+  border-radius: 8px;
   font-size: 14px;
   text-align: left;
-  color: var(--fog);
+  color: var(--ink);
+  transition: background-color 0.12s;
 }
 
 .menu-item:hover,
 .menu-item:focus-visible {
   outline: none;
-  color: var(--porcelain);
-  background: var(--wash-item);
+  background: var(--module-press);
 }
 
-.menu-item[aria-checked='true'] {
-  color: var(--porcelain);
+.menu-item:active {
+  background: var(--raised);
+}
+
+.menu-item[aria-checked='false'] {
+  color: var(--ink);
 }
 
 .menu-item:disabled {
@@ -998,20 +1372,27 @@ svg.lucide {
 
 .menu-item svg.lucide {
   font-size: 16px;
+  color: var(--ink-2);
 }
 
 .menu-check {
   color: var(--accent);
 }
 
+.menu-item .menu-check svg.lucide {
+  color: var(--accent);
+  stroke-width: 2.25;
+}
+
 .menu[data-align='right'] {
-  transform-origin: bottom right;
+  transform-origin: var(--origin-x, 50%) 100%;
 }
 
 .menu-title {
   padding: 6px 10px 8px;
   font-size: 12px;
-  color: var(--fog);
+  font-weight: 500;
+  color: var(--ink-2);
 }
 
 .menu-note {
@@ -1020,7 +1401,7 @@ svg.lucide {
   gap: 8px;
   padding: 4px 10px 8px;
   font-size: 13px;
-  color: var(--porcelain);
+  color: var(--ink);
 }
 
 .menu-note svg.lucide {
@@ -1032,13 +1413,13 @@ svg.lucide {
   margin: 0;
   padding: 6px 10px 10px;
   font-size: 13px;
-  color: var(--fog);
+  color: var(--ink-2);
 }
 
 .menu-separator {
-  height: 1px;
-  margin: 4px 6px;
-  background: var(--hairline);
+  height: var(--hair);
+  margin: 4px 8px;
+  background: var(--sep);
 }
 
 /* Signed-out card */
@@ -1063,20 +1444,24 @@ svg.lucide {
 .login-badge {
   display: grid;
   place-items: center;
-  width: 44px;
-  height: 44px;
+  width: 48px;
+  height: 48px;
   margin-bottom: 4px;
   border-radius: 50%;
-  font-size: 20px;
-  color: var(--tint);
-  background: color-mix(in srgb, var(--tint) 12%, transparent);
-  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--tint) 40%, transparent);
+  font-size: 22px;
+  color: var(--ink);
+  background: var(--module);
+  box-shadow:
+    inset 0 var(--hair) 0 var(--edge-top),
+    inset 0 0 0 var(--hair) var(--edge-ring),
+    var(--module-shadow);
 }
 
 .login-title {
   margin: 0;
   font-size: 19px;
-  font-weight: 500;
+  font-weight: 600;
+  letter-spacing: -0.015em;
   line-height: 1.2;
 }
 
@@ -1088,7 +1473,7 @@ svg.lucide {
   margin: 0 0 8px;
   font-size: 13px;
   line-height: 1.45;
-  color: var(--fog);
+  color: var(--ink-2);
 }
 
 .login-error {
@@ -1101,19 +1486,22 @@ svg.lucide {
   font-size: 13px;
   line-height: 1.35;
   text-align: left;
-  color: var(--signal);
-  background: color-mix(in srgb, var(--signal) 10%, transparent);
-  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--signal) 24%, transparent);
+  color: var(--ink);
+  background: var(--module);
+  box-shadow:
+    inset 0 var(--hair) 0 var(--edge-top),
+    inset 0 0 0 var(--hair) var(--edge-ring);
 }
 
 .login-error-icon {
   display: grid;
   flex: none;
   font-size: 16px;
+  color: var(--danger);
 }
 
-.panel:is([data-login='needed'], [data-login='waiting']) :is(.top, .setpoint-row, .slider-row, .scale, .strip) {
-  display: none;
+.panel:is([data-login='needed'], [data-login='waiting']) :is(.top, .audio, .now, .card, .strip) {
+  display: none !important;
 }
 
 .panel:is([data-login='needed'], [data-login='waiting']) .hero {
@@ -1124,19 +1512,30 @@ svg.lucide {
   display: flex;
 }
 
-/* Settings */
+/* Settings: a second view that slides in over the main one */
 
 .view-settings {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
   gap: 12px;
   padding: 14px 0 0;
   background:
-    radial-gradient(130% 60% at 50% 0%, var(--graphite-glow) 0%, var(--graphite-glow-clear) 72%),
-    var(--graphite);
-  transform: translateX(104%);
-  transition: transform 0.34s var(--ease-out);
+    radial-gradient(130% 60% at 50% 0%, var(--card-glow) 0%, var(--card-glow-clear) 72%),
+    var(--card-solid);
+  opacity: 0;
+  transform: translateX(100%);
+  transition:
+    transform 0.5s var(--spring),
+    opacity 0.3s var(--ease-out);
+}
+
+:root[data-platform='darwin'] .view-settings {
+  background: none;
 }
 
 .panel.settings-open .view-settings {
+  opacity: 1;
   transform: none;
 }
 
@@ -1158,7 +1557,8 @@ svg.lucide {
 .settings-heading h1 {
   margin: 0;
   font-size: 17px;
-  font-weight: 500;
+  font-weight: 600;
+  letter-spacing: -0.015em;
   line-height: 1.1;
 }
 
@@ -1168,14 +1568,18 @@ svg.lucide {
 
 .settings-device {
   font-size: 12px;
-  color: var(--fog);
+  color: var(--ink-2);
 }
 
 .group {
   overflow: hidden;
   border-radius: 16px;
-  background: var(--slate);
-  box-shadow: inset 0 0 0 1px var(--hairline);
+  background: var(--module);
+  box-shadow:
+    inset 0 var(--hair) 0 var(--edge-top),
+    inset 0 0 0 var(--hair) var(--edge-ring),
+    inset 0 calc(var(--hair) * -1) 0 var(--edge-low),
+    var(--module-shadow);
 }
 
 .row {
@@ -1188,12 +1592,12 @@ svg.lucide {
 }
 
 .row:not([hidden]) ~ .row:not([hidden]) {
-  box-shadow: inset 0 1px 0 var(--hairline);
+  box-shadow: inset 0 var(--hair) 0 var(--sep);
 }
 
 .row > svg.lucide {
   font-size: 18px;
-  color: var(--fog);
+  color: var(--ink-2);
 }
 
 .row-text {
@@ -1209,15 +1613,26 @@ svg.lucide {
 
 .row-note {
   font-size: 12px;
-  color: var(--fog);
+  color: var(--ink-2);
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .pulse,
-  .status-icon,
-  .setpoint-value,
   .panel,
-  .menu {
+  .panel *,
+  .panel *::before,
+  .panel *::after {
+    animation-duration: 0.01ms !important;
+    animation-delay: 0s !important;
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+
+  .status-message[data-tone='busy'] .status-icon,
+  .status-ghost {
     animation: none !important;
+  }
+
+  .status-ghost {
+    display: none;
   }
 }

@@ -11,7 +11,13 @@ function placePopup(owner, align) {
   const wanted = align === 'right' ? ownerBox.right - panelBox.left - popup.offsetWidth : ownerBox.left - panelBox.left;
   const left = clamp(wanted, 12, panelBox.width - popup.offsetWidth - 12);
   popup.style.left = `${left}px`;
-  popup.style.bottom = `${panelBox.bottom - ownerBox.top + 8}px`;
+  // It opens above its control; a control too near the top of the panel (a scrolled page) gets it below instead.
+  const above = popup.offsetHeight + 8 + 12 <= ownerBox.top - panelBox.top;
+  popup.style.bottom = above ? `${panelBox.bottom - ownerBox.top + 8}px` : 'auto';
+  popup.style.top = above ? 'auto' : `${ownerBox.bottom - panelBox.top + 8}px`;
+  // The popup grows out of the control that opened it: its scale originates in the middle of that control.
+  popup.style.setProperty('--origin-x', `${ownerBox.left + ownerBox.width / 2 - panelBox.left - left}px`);
+  popup.style.setProperty('--origin-y', above ? '100%' : '0%');
 }
 
 // `build` returns the popup's children and `label` its name; both may run again while open, so they must not hold DOM state.
@@ -80,6 +86,15 @@ popup.addEventListener('keydown', (event) => {
   const index = items.indexOf(document.activeElement);
   items[(index + step + items.length) % items.length].focus();
 });
+
+// A page that scrolls under an open popup would leave it hanging in the air.
+document.addEventListener(
+  'scroll',
+  (event) => {
+    if (event.target instanceof Element && event.target.matches('.view-main, .page')) closePopup();
+  },
+  true,
+);
 
 // composedPath is read at dispatch time, so a click on a row the popup just rebuilt still counts as inside.
 document.addEventListener('click', (event) => {

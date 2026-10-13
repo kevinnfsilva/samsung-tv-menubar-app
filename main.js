@@ -14,8 +14,16 @@ const { UpdateChecker } = require('./lib/updates');
 const { repository } = require('./package.json');
 
 const IS_MAC = process.platform === 'darwin';
-// The window leaves room around the panel for its shadow; on macOS the top margin is thinner so it hugs the menu bar.
-const PANEL_SIZE = { width: 412, height: IS_MAC ? 522 : 536 };
+// On macOS the window is the card: the system draws its material, rounded corners and shadow. On Windows the window is
+// transparent and leaves room around a card drawn in CSS, for the shadow of that card. Each layout of the panel has its
+// own size: the compact one is the card the app always had, the tabbed one is taller (and shrinks to fit a short screen).
+const PANEL_SIZES = IS_MAC
+  ? { compacto: { width: 372, height: 496 }, abas: { width: 376, height: 688 } }
+  : { compacto: { width: 412, height: 536 }, abas: { width: 416, height: 728 } };
+const TABS_MIN_HEIGHT = 440;
+// The distance between the menu bar and the card, and between the card and the edge of the screen.
+const PANEL_GAP = 6;
+const PANEL_EDGE = 8;
 const POLL_VISIBLE_MS = 15_000;
 const POLL_HIDDEN_MS = 60_000;
 const STALE_AFTER_MS = 5_000;
@@ -135,14 +143,41 @@ function taskbarIsDark() {
   return nativeTheme.shouldUseDarkColorsForSystemIntegratedUI ?? nativeTheme.shouldUseDarkColors;
 }
 
+// macOS paints the window itself: a vibrancy material that stays lit while the panel is not the key window, with the
+// system's own corners and shadow. The page above it is transparent.
+const MAC_WINDOW = { vibrancy: 'popover', visualEffectState: 'active', hasShadow: true, roundedCorners: true, backgroundColor: '#00000000' };
+const WINDOWS_WINDOW = { transparent: true, backgroundColor: '#00000000', hasShadow: false, type: 'toolbar' };
+
+// How long the macOS window takes to fade in; the page's own spring (panel/styles.css) runs a little longer.
+const FADE_IN_MS = 160;
+let fadeTimer;
+
+function fadeInPanel(win) {
+  const started = Date.now();
+  // A show of a window that is already up (a second launch, a clicked notification) must not blink: fade from where it is.
+  const from = win.getOpacity();
+  clearInterval(fadeTimer);
+  fadeTimer = setInterval(() => {
+    if (win.isDestroyed()) {
+      clearInterval(fadeTimer);
+      return;
+    }
+    const progress = Math.min(1, (Date.now() - started) / FADE_IN_MS);
+    win.setOpacity(from + (1 - from) * (1 - (1 - progress) ** 2));
+    if (progress === 1) clearInterval(fadeTimer);
+  }, 16);
+}
+
+function panelStyle() {
+  return settings.get().estilo === 'abas' ? 'abas' : 'compacto';
+}
+
 function createPanel() {
   const panelWindow = new BrowserWindow({
-    ...PANEL_SIZE,
+    ...PANEL_SIZES[panelStyle()],
     show: false,
     frame: false,
-    transparent: true,
-    backgroundColor: '#00000000',
-    hasShadow: false,
+    ...(IS_MAC ? MAC_WINDOW : WINDOWS_WINDOW),
     resizable: false,
     movable: false,
     minimizable: false,
@@ -150,7 +185,6 @@ function createPanel() {
     fullscreenable: false,
     skipTaskbar: true,
     alwaysOnTop: true,
-    ...(IS_MAC ? {} : { type: 'toolbar' }),
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,
@@ -160,8 +194,18 @@ function createPanel() {
   });
   if (IS_MAC) {
     panelWindow.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true, skipTransformProcessType: true });
+    // The page cannot fade a window the system draws: it starts clear and fades in as it appears, while the page springs.
+    panelWindow.setOpacity(0);
+    panelWindow.on('show', () => fadeInPanel(panelWindow));
+    panelWindow.on('hide', () => {
+      // The event arrives some 300 ms after hide(): a window that is already back on screen must be left alone.
+      if (panelWindow.isVisible()) return;
+      clearInterval(fadeTimer);
+      panelWindow.setOpacity(0);
+    });
   }
-  panelWindow.loadFile(path.join(__dirname, 'panel', 'index.html'));
+  // The page starts in the layout the setting asks for, so that not even its first frame is the other one.
+  panelWindow.loadFile(path.join(__dirname, 'panel', 'index.html'), { query: { estilo: panelStyle() } });
   panelWindow.on('blur', () => {
     lastBlurAt = Date.now();
     hidePanel();
@@ -169,16 +213,32 @@ function createPanel() {
   return panelWindow;
 }
 
-// The panel rises from the Windows taskbar and drops from the macOS menu bar.
-function positionPanel() {
+// Where the panel goes: it rises from the Windows taskbar and drops from the macOS menu bar, in the size of its layout.
+function panelBounds() {
   const trayBounds = tray.getBounds();
   const anchor = { x: trayBounds.x + trayBounds.width / 2, y: trayBounds.y };
   const { workArea } = screen.getDisplayNearestPoint(anchor);
-  const [width, height] = panel.getSize();
-  const rightmost = workArea.x + workArea.width - width;
+  const style = panelStyle();
+  const { width } = PANEL_SIZES[style];
+  const edge = IS_MAC ? PANEL_EDGE : 0;
+  const top = IS_MAC ? Math.max(workArea.y, trayBounds.y + trayBounds.height + PANEL_GAP) : workArea.y;
+  // Only the tabbed layout scrolls, so only it gives up height when the screen is short.
+  const room = workArea.y + workArea.height - top - edge;
+  const height = style === 'abas' ? Math.max(TABS_MIN_HEIGHT, Math.min(PANEL_SIZES.abas.height, room)) : PANEL_SIZES[style].height;
+  const rightmost = workArea.x + workArea.width - width - edge;
   const centered = trayBounds.width > 0 ? Math.round(anchor.x - width / 2) : rightmost;
-  const y = IS_MAC ? Math.max(workArea.y, trayBounds.y + trayBounds.height) : workArea.y + workArea.height - height;
-  panel.setPosition(Math.max(workArea.x, Math.min(centered, rightmost)), y);
+  const y = IS_MAC ? top : workArea.y + workArea.height - height;
+  return { x: Math.max(workArea.x + edge, Math.min(centered, rightmost)), y, width, height };
+}
+
+function positionPanel() {
+  panel.setBounds(panelBounds());
+}
+
+// A change of layout gives the window its new size: macOS animates it while the page swaps its content.
+function resizePanel() {
+  if (panel.isVisible()) panel.setBounds(panelBounds(), IS_MAC);
+  else positionPanel();
 }
 
 // A status item takes a moment to move after its icon changes width, and the open panel hangs from its middle.
@@ -313,6 +373,7 @@ function start() {
   // Registered before anything else listens, so the panel hears every change in order even when a later listener changes settings in turn.
   settings.on('change', (next, previous) => {
     panel.webContents.send('settings', next);
+    if (next.estilo !== previous.estilo) resizePanel();
     if (next.idioma !== previous.idioma) applyLanguage();
     if (next.autostart !== previous.autostart) setAutostart(next.autostart);
     if (IS_MAC && next.dock !== previous.dock) applyDock(next.dock);

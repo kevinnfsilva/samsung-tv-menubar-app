@@ -1,0 +1,612 @@
+/* The tabbed layout ("abas"): a taller panel with a header that names the TV and its state, an icon tab bar with a sliding
+   highlight, and quiet cards. Everything here only applies while the panel says data-style='abas'; the compact layout never
+   sees it. Colours, shadows and springs come from styles.css. */
+
+/* The two layouts size the panel differently: the compact one is a fixed card, the tabbed one fills its (taller) window. */
+.panel[data-style='abas'] {
+  width: 100%;
+  height: 100%;
+}
+
+.panel[data-style='abas'] .stage {
+  position: relative;
+}
+
+.panel[data-style='abas'] .view {
+  position: absolute;
+  inset: 0;
+}
+
+.panel[data-style='abas'] .view-settings {
+  padding-top: 0;
+  background: none;
+  gap: 8px;
+}
+
+:root:not([data-platform='darwin']) .panel[data-style='abas'] .view-settings {
+  background: none;
+}
+
+/* Header */
+
+.panel[data-style='abas'] .top {
+  padding: 14px 16px 0 20px;
+}
+
+.panel[data-style='abas'] .device-sub {
+  display: block;
+}
+
+.panel[data-style='abas'] .device-name {
+  font-size: 17px;
+}
+
+.panel[data-style='abas'] .power {
+  width: 38px;
+  height: 38px;
+}
+
+/* Tab bar */
+
+.tabrow {
+  display: none;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 14px 4px;
+}
+
+.panel[data-style='abas'] .tabrow {
+  display: flex;
+}
+
+.tabbar {
+  position: relative;
+  display: grid;
+  flex: 1;
+  grid-template-columns: repeat(5, 1fr);
+  height: 46px;
+  padding: 3px;
+  border-radius: 17px;
+  background: var(--module);
+  box-shadow:
+    inset 0 var(--hair) 0 var(--edge-top),
+    inset 0 0 0 var(--hair) var(--edge-ring),
+    var(--module-shadow);
+}
+
+.tab-highlight {
+  position: absolute;
+  top: 3px;
+  bottom: 3px;
+  left: 3px;
+  width: calc((100% - 6px) / 5);
+  border-radius: 14px;
+  background: var(--raised);
+  box-shadow:
+    inset 0 var(--hair) 0 var(--edge-top),
+    0 1px 3px rgba(0, 0, 0, 0.18);
+  transform: translateX(calc(var(--tab-index, 0) * 100%));
+  transition: transform 0.55s var(--spring-soft);
+}
+
+.tab {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  border-radius: 14px;
+  font-size: 20px;
+  color: var(--ink-2);
+  transition:
+    color 0.25s,
+    transform 0.5s var(--spring-pop);
+}
+
+.tab svg {
+  transition: transform 0.5s var(--spring-pop);
+}
+
+.tab:hover:not(:disabled) {
+  color: var(--ink);
+}
+
+.tab:active:not(:disabled) svg {
+  transform: scale(0.84);
+  transition-duration: 0.08s;
+}
+
+.tab[aria-current] {
+  color: var(--ink);
+}
+
+.tab:disabled {
+  opacity: 0.38;
+}
+
+.tabbar:has(.tab:disabled) .tab-highlight {
+  opacity: 1;
+}
+
+.style-toggle {
+  width: 36px;
+  height: 36px;
+}
+
+#style-toggle-tabs {
+  flex: none;
+  width: 46px;
+  height: 46px;
+  border-radius: 17px;
+  background: var(--module);
+  box-shadow:
+    inset 0 var(--hair) 0 var(--edge-top),
+    inset 0 0 0 var(--hair) var(--edge-ring),
+    var(--module-shadow);
+}
+
+#style-toggle-tabs:hover {
+  background: var(--module-hover);
+}
+
+.panel[data-style='abas'] .footer-tools,
+.panel[data-style='compacto'] #style-toggle-tabs {
+  display: none;
+}
+
+/* Início: a column of cards that scrolls */
+
+.panel[data-style='abas'] .view-main {
+  gap: 12px;
+  padding: 8px 14px 16px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+/* Content leaves under the tab bar and above the footer with a short fade instead of a hard cut */
+.panel[data-style='abas'] :is(.view-main, .page) {
+  mask-image: linear-gradient(180deg, transparent 0, #000 8px, #000 calc(100% - 12px), transparent 100%);
+}
+
+.panel[data-style='abas'] .view-main::-webkit-scrollbar {
+  width: 10px;
+}
+
+.panel[data-style='abas'] .view-main::-webkit-scrollbar-thumb {
+  border: 3px solid transparent;
+  border-radius: 5px;
+  background: var(--scrollbar);
+  background-clip: padding-box;
+}
+
+/* The TV and the text on its screen are drawn for a 372 px stage: the hero keeps that width and overhangs the card's padding */
+.panel[data-style='abas'] .hero {
+  width: 372px;
+  margin: 2px -12px -2px;
+}
+
+.now {
+  display: none;
+}
+
+.panel[data-style='abas'] .now {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 0 6px;
+}
+
+.now-label {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+}
+
+.now-label::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--ink-3);
+  transition: background-color 0.5s;
+}
+
+.panel[data-power='on'] .now-label::before {
+  background: var(--accent);
+}
+
+.now-value {
+  overflow: hidden;
+  font-size: 16px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* The audio control is one component: loose on the compact panel, a card on the tabbed one. */
+.audio {
+  display: contents;
+}
+
+.panel[data-style='abas'] .audio {
+  display: block;
+  padding: 12px 14px 12px;
+  border-radius: 20px;
+  background: var(--module);
+  box-shadow:
+    inset 0 var(--hair) 0 var(--edge-top),
+    inset 0 0 0 var(--hair) var(--edge-ring),
+    inset 0 calc(var(--hair) * -1) 0 var(--edge-low),
+    var(--module-shadow);
+}
+
+.panel[data-style='abas'] .audio .setpoint-row {
+  margin-top: 0;
+  padding: 0;
+}
+
+.panel[data-style='abas'] .audio .slider-row {
+  margin-top: 10px;
+  padding: 0;
+}
+
+.panel[data-style='abas'] .audio .scale {
+  padding: 6px 54px 0;
+}
+
+.panel[data-style='abas'] .audio .pill {
+  background: var(--module);
+}
+
+/* Cards */
+
+.card {
+  display: none;
+}
+
+.panel[data-style='abas'] .card {
+  display: block;
+  padding: 14px 14px 12px;
+  border-radius: 20px;
+  background: var(--module);
+  box-shadow:
+    inset 0 var(--hair) 0 var(--edge-top),
+    inset 0 0 0 var(--hair) var(--edge-ring),
+    inset 0 calc(var(--hair) * -1) 0 var(--edge-low),
+    var(--module-shadow);
+}
+
+.card-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.card-head > svg {
+  font-size: 17px;
+  color: var(--ink-2);
+}
+
+.card-head h2 {
+  flex: 1;
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.card-link {
+  font-size: 13px;
+  color: var(--ink-2);
+  transition:
+    color 0.2s,
+    opacity 0.2s;
+}
+
+.card-link:hover {
+  color: var(--ink);
+}
+
+.card-link:active {
+  opacity: 0.6;
+}
+
+.card-note {
+  margin: 0;
+  font-size: 13px;
+  color: var(--ink-2);
+}
+
+.fav-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 4px;
+}
+
+.fav {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 7px;
+  padding: 2px 0 0;
+  border-radius: 14px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--ink);
+}
+
+.fav-name {
+  max-width: 100%;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.fav .badge,
+.app-tile .badge {
+  transition: transform 0.5s var(--spring-pop);
+}
+
+.fav:hover .badge,
+.app-tile:hover .badge {
+  transform: scale(1.05);
+}
+
+.fav:active .badge,
+.app-tile:active .badge {
+  transform: scale(0.9);
+  transition-duration: 0.08s;
+}
+
+.input-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.input-row {
+  display: grid;
+  grid-template-columns: 36px 1fr 18px;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 2px;
+  text-align: left;
+}
+
+.input-row + .input-row {
+  box-shadow: inset 0 var(--hair) 0 var(--sep);
+}
+
+.input-row:disabled {
+  opacity: 0.45;
+}
+
+.input-icon {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 11px;
+  font-size: 18px;
+  background: var(--module);
+  box-shadow:
+    inset 0 var(--hair) 0 var(--edge-top),
+    inset 0 0 0 var(--hair) var(--edge-ring);
+  transition: transform 0.5s var(--spring-pop);
+}
+
+.input-row:active:not(:disabled) .input-icon {
+  transform: scale(0.9);
+  transition-duration: 0.08s;
+}
+
+.input-text {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.input-name {
+  overflow: hidden;
+  font-size: 14px;
+  font-weight: 500;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.input-note {
+  font-size: 12px;
+  color: var(--ink-2);
+}
+
+.input-row[aria-checked='true'] .input-name {
+  font-weight: 600;
+}
+
+.input-mark {
+  display: grid;
+  font-size: 17px;
+  color: var(--accent);
+  opacity: 0;
+  transform: scale(0.4);
+  transition:
+    opacity 0.2s,
+    transform 0.5s var(--spring-pop);
+}
+
+.input-mark svg {
+  stroke-width: 2.4;
+}
+
+.input-row[aria-checked='true'] .input-mark {
+  opacity: 1;
+  transform: none;
+}
+
+/* Picture and Sound only: the input is a card of its own and the channel is on the remote */
+.panel[data-style='abas'] .strip {
+  grid-template-columns: 1fr 1fr;
+  margin: 0;
+  order: 9;
+}
+
+.panel[data-style='abas'] .strip > [data-menu='entrada'],
+.panel[data-style='abas'] .strip > .cell-plain {
+  display: none;
+}
+
+.panel[data-style='abas'] .strip > [data-menu='imagem'] {
+  box-shadow: none;
+}
+
+.panel[data-style='abas'] .cell {
+  padding-right: 10px;
+}
+
+/* Footer: the connection on the left, the TV's model on the right */
+
+.tv-model {
+  display: none;
+  flex: none;
+  max-width: 46%;
+  overflow: hidden;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: var(--ink-2);
+}
+
+.panel[data-style='abas'] .tv-model:not([hidden]) {
+  display: block;
+}
+
+.panel[data-style='abas'] .status {
+  height: 42px;
+  padding: 0 20px 4px 20px;
+}
+
+/* Pages in the tab layout: the base page of a tab has no header, a pushed page has the back button */
+
+.panel[data-style='abas'][data-depth='1'] .settings-top {
+  display: none;
+}
+
+.panel[data-style='abas'] .settings-top {
+  padding-top: 0;
+}
+
+.panel[data-style='abas'] .page {
+  padding-top: 8px;
+}
+
+.panel[data-style='abas'] .page-remote {
+  padding-top: 2px;
+}
+
+.panel[data-style='abas'] .row-compact-only {
+  display: none;
+}
+
+.timer-card {
+  display: none;
+}
+
+.panel[data-style='abas'] .timer-card {
+  display: block;
+}
+
+#timer-chips .chip {
+  flex: 1;
+  min-width: 0;
+  padding: 0;
+}
+
+.row-timer {
+  grid-template-columns: 20px 1fr auto;
+}
+
+/* Apps tab */
+
+.app-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.app-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 20px 8px 16px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--ink);
+  background: var(--module);
+  box-shadow:
+    inset 0 var(--hair) 0 var(--edge-top),
+    inset 0 0 0 var(--hair) var(--edge-ring),
+    inset 0 calc(var(--hair) * -1) 0 var(--edge-low),
+    var(--module-shadow);
+  transition: background-color 0.2s;
+}
+
+.app-tile:hover:not(:disabled) {
+  background: var(--module-hover);
+}
+
+.app-tile .badge {
+  width: 64px;
+  height: 64px;
+  border-radius: 16px;
+  font-size: 28px;
+}
+
+.app-tile .badge[data-brand='disney'] {
+  font-size: 24px;
+}
+
+.page[data-usable='false'] .app-tile {
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+/* Switching between the layouts: the content fades out, the style changes while nothing shows, the new content springs in. */
+
+.panel.style-out > :not(.menu) {
+  opacity: 0;
+  transform: scale(0.985);
+  transition:
+    opacity 0.13s var(--ease-out),
+    transform 0.13s var(--ease-out);
+}
+
+.panel.style-in > :not(.menu) {
+  animation: style-in 0.36s var(--spring-soft) both;
+}
+
+@keyframes style-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.985);
+  }
+}
+
+/* An error message needs the room: the model and, on the compact panel, the layout button step aside until it clears. */
+.panel[data-tone='error'] .tv-model {
+  display: none !important;
+}
+
+.panel[data-tone='error'][data-style='compacto'] #style-toggle {
+  display: none;
+}
