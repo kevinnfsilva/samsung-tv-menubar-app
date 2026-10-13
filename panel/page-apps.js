@@ -1,5 +1,5 @@
 /* Apps: a grid of badges on its own page (a tab of the tabbed layout), and the shortcuts on the drawn remote. The list lives
-   in TV_APPS (labels.js). A badge is a colour block with an initial; official logos are not reproduced. */
+   in TV_APPS (labels.js). A badge is the app's mark when TV_APPS carries one, else a colour block with an initial. */
 
 function renderAppGrid() {
   byId('app-grid').replaceChildren(

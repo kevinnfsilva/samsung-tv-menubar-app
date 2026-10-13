@@ -44,15 +44,15 @@ curl -fsSL https://raw.githubusercontent.com/kevinnfsilva/samsung-tv-menubar-app
 </div>
 
 <p align="center">
-  <img src="docs/hero.en.webp" width="830" alt="The TV Remote panel in three states: on at volume 12, with mute on, and off" />
+  <img src="docs/hero.en.webp" width="830" alt="The compact TV Remote panel in three states: on at volume 12, with the drawn remote open, and off" />
 </p>
 
-A menu bar panel for the Mac that controls a Samsung TV through SmartThings. The icon shows the volume, and one click opens the panel: power, volume, mute, input, picture, sound, channel and an on-screen remote, with shortcuts to Netflix, YouTube, Prime Video and Disney+.
+A menu bar panel for the Mac that controls a Samsung TV through SmartThings. The icon shows the volume, and one click opens the panel: power, volume, mute, input, picture, sound, channel and a drawn remote control, with shortcuts to Netflix, YouTube, Prime Video and Disney+.
 
 This project grew out of [WindFree](https://github.com/kevinnfsilva/samsung-windfree-menubar-app), the Samsung air conditioner panel, and uses the same code with the TV part in place of the air conditioner part. WindFree, in turn, is based on the [Windows tray app](https://github.com/c0dag/samsung-windfree-tray-app) by [@c0dag](https://github.com/c0dag), ported to the macOS menu bar.
 
 <p align="center">
-  <img src="docs/demo.en.gif" width="420" alt="Demo: the volume goes up, mute is turned on, the input list opens and the input changes to HDMI 2, the Remote opens and Netflix is launched" />
+  <img src="docs/demo.en.gif" width="420" alt="Demo: the volume goes up, the Remote opens, the keys light up and Netflix is launched; the panel switches to tabs and back" />
 </p>
 
 <p align="center"><sub>The images and the demo come from the real panel code, with a simulated TV. The pointer in the video was drawn on top.</sub></p>
@@ -135,11 +135,14 @@ With a full menu bar, which is common on MacBooks with a notch, the new icon may
 
 ## What it does
 
+**What's new in 0.2.0.** The panel now uses the macOS look: the system's translucent material, its corners and shadow, controls in the Control Center style and one accent colour, the system accent. The panel has two styles, **Compact** (the default) and **Tabs**, switched with one click. The remote control is drawn in both styles, with its own keyboard and a light that blinks on every command. Netflix and YouTube show each app's mark; Prime Video and Disney+ show a drawn badge. Animations run when the panel opens, on buttons, on the TV screen, on the volume, on menus and on page and tab changes.
+
 - Switch the TV on and off from the panel button, from the menu bar icon, or with the Space key.
 - Set the volume from 0 to 100 with the slider, the − and + buttons or the ↑ and ↓ keys. Turn mute on and off.
 - Change the **input**, the **picture mode** and the **sound mode**. The options are the ones the TV reports.
 - Change channel with the − and + buttons on the **Channel** cell, when the TV reports its channel.
-- Use the **Remote**: directional pad, OK, Back, Home, Menu, playback buttons and shortcuts to Netflix, YouTube, Prime Video and Disney+.
+- Use the drawn **Remote**: directional pad, OK, Back, Home, volume, channel and app keys, playback buttons, Menu, Source and Exit. The keyboard works too.
+- Pick the panel style, **Compact** or **Tabs**, with one click.
 - Set a **timer** (30 minutes to 8 hours) and **schedules** by time and weekday.
 - Get notifications: the TV going offline, and the TV being left on for a long time.
 - Open the panel with a global shortcut (off by default).
@@ -147,7 +150,7 @@ With a full menu bar, which is common on MacBooks with a notch, the new icon may
 - Light or dark appearance, following the system, and screens in Portuguese or English.
 - Show the volume in the menu bar icon, start with macOS, hide the Dock icon, and find out when a new version is out.
 
-Tested on a Samsung Crystal UHD 75-inch (UN75CU8000): power on and off over the network, volume, mute, picture mode, sound mode, launching YouTube and Netflix, the Home key and the channel keys worked. The arrow keys, Back and play/pause are sent, but the TV does not report whether the screen changed. Picture mode only changes while something is playing. Timer, schedules and notifications were tested only with a simulated TV. The Prime Video and Disney+ shortcuts were not tried on the TV. The Intel installer and Windows were not run.
+Tested on a Samsung Crystal UHD 75-inch (UN75CU8000) with the 0.2.0 look: power on and off from the panel, switching styles and the volume keys of the drawn remote. The 0.1.0 tests still stand, because the commands are the same: power on and off over the network, volume, mute, picture mode, sound mode, launching YouTube and Netflix, the Home key and the channel keys worked. The arrow keys, Back and play/pause are sent, but the TV does not report whether the screen changed. Picture mode only changes while something is playing. Timer, schedules and notifications were tested only with a simulated TV. The Prime Video and Disney+ shortcuts were not tried on the TV. The Intel installer and Windows were not run.
 
 ## Usage
 
@@ -163,35 +166,59 @@ Tested on a Samsung Crystal UHD 75-inch (UN75CU8000): power on and off over the 
 
 ### The panel
 
-From top to bottom:
+**Compact** (the default) fits on one screen, from top to bottom:
 
 - The TV's name and the button that turns the TV on and off.
 - The TV screen: it shows the app in use (YouTube, Netflix and others the app recognizes) or, if none is recognized, the input, with the picture mode below it. With the TV off, the screen is dark.
 - The volume as a large number, the **Mute** switch, the slider and the − and + buttons.
-- Four cells: **Input**, **Channel** (with − and +), **Picture** and **Sound**. Input, Picture and Sound open a list of the options the TV reports.
-- The footer shows the status, such as "Connected", "Syncing…" or "The TV is offline", and has the **Remote**, **Timer** and **Settings** buttons.
+- A strip of four cells: **Input**, **Channel** (with − and +), **Picture** and **Sound**. Input, Picture and Sound open a list of the options the TV reports.
+- The footer shows the status, such as "Connected", "Syncing…" or "The TV is offline", and has the **Remote**, **Timer**, **Settings** and layout buttons (see below).
+
+**Tabs** is the same panel with a bar of icon tabs (**Home**, **Remote**, **Apps**, **Routines** and **Settings**) and more height. **Home** has the TV, the volume, a **Favorites** card (Netflix, YouTube, Prime Video and Disney+), an **Inputs** card and, further down, **Picture** and **Sound**. **Remote** is the drawn remote control. **Apps** shows the four apps as tiles. **Routines** has the timer and the schedules. **Settings** has **Device** and **Preferences**. The footer shows the connection and the TV's model.
+
+<p align="center">
+  <img src="docs/tabs.en.webp" width="830" alt="The Tabs panel: the Home tab, the Remote tab with the drawn remote control and the Apps tab" />
+</p>
+
+To switch styles, use the layout button: in the footer of Compact, or beside the tab bar in Tabs. The choice is also in **Settings > Preferences > Panel style**, and the panel opens in the style you picked last.
 
 When something goes wrong, the footer says what: "No internet or SmartThings is down", "The TV is offline", "No TV on this account", "This TV is no longer on the account" (with the **Choose another TV** shortcut), "SmartThings took too long to respond" or "SmartThings is not responding". Almost all of them come with **Try again**. When the TV does not confirm a change, the footer says which settings were left unconfirmed.
 
 ### Remote
 
 <p align="center">
-  <img src="docs/remote.en.webp" width="830" alt="The Remote page, an input menu open on the main view, and the timer menu with an active timer" />
+  <img src="docs/remote.en.webp" width="830" alt="The Remote page, the input menu open and the timer menu with an active timer" />
 </p>
 
-Click the remote icon in the footer. The **Remote** page has:
+The remote control is drawn and shows in both styles: in Compact, with the **Remote** button in the footer; in Tabs, on the **Remote** tab. It has:
 
-- The directional pad (↑, ←, OK, →, ↓), with **Back**, **Home** and **Menu** below it.
-- The playback buttons: rewind, play, pause, stop and fast forward.
-- **Apps**, with **Netflix**, **YouTube**, **Prime Video** and **Disney+**, which open the app on the TV.
+- A power button at the top, and the directional pad (↑, ←, OK, →, ↓).
+- **Back**, **Home** and the play or pause button.
+- A volume rocker (+ and −), with **Mute** in the middle, and a channel rocker (**CH** ↑ and ↓).
+- Three app keys: **Netflix**, **YouTube** and **Prime Video**, which open the app on the TV.
+- A row with **Menu**, **Source**, **Exit**, **Rewind**, **Stop** and **Fast forward**.
+- A light at the top that blinks on every command sent.
 
-With the page open, the keyboard arrows are the directional pad, Enter is OK (when no button has focus) and Backspace is Back. Each press goes to the TV in the order you made it. The remote goes through SmartThings, so each press takes a second or two; moving through menus with the arrows is slower than with the physical remote.
+**Disney+** appears only in Tabs, in **Favorites** and on the **Apps** tab. Compact has no key for it.
+
+With the remote open, the keyboard does this:
+
+| Key | Does |
+|---|---|
+| ↑ ↓ ← → | Directional pad |
+| Enter | OK (when no button has focus) |
+| Backspace | Back |
+| Space | Play or pause (when no button has focus) |
+| + and − | Volume |
+| M | Mute on or off |
+
+Each press goes to the TV in the order you made it. The remote goes through SmartThings, so each press takes a second or two; moving through menus with the arrows is slower than with the physical remote.
 
 ### Timer and schedules
 
-**Timer.** Click the clock in the footer. With the TV on, the options are "Turn off in 30 min", 1 h, 2 h, 4 h and 8 h; with the TV off, they are the same to turn it on. The footer shows "Turns off at…" or "Turns on at…" while the timer is active, and **Cancel timer** undoes it. There is only one timer at a time.
+**Timer.** Click the clock in the footer (in Compact). In Tabs, the timer is on the **Routines** tab. With the TV on, the options are "Turn off in 30 min", 1 h, 2 h, 4 h and 8 h; with the TV off, they are the same to turn it on. The footer shows "Turns off at…" or "Turns on at…" while the timer is active, and **Cancel timer** undoes it. There is only one timer at a time.
 
-**Schedules.** In **Settings > Schedules**, choose the time, the weekdays and the action (**Turn on** or **Turn off**). The days can be every day, weekdays, weekends or any combination. Each schedule has a switch to enable or disable it and a trash can.
+**Schedules.** In **Settings > Schedules** (in Tabs, on the **Routines** tab), choose the time, the weekdays and the action (**Turn on** or **Turn off**). The days can be every day, weekdays, weekends or any combination. Each schedule has a switch to enable or disable it and a trash can.
 
 A few rules apply to the timer and the schedules:
 
@@ -225,6 +252,8 @@ The panel follows the system's light or dark mode.
   <img src="docs/themes.en.webp" width="600" alt="The main panel and the settings, side by side in dark mode and in light mode" />
 </p>
 
+The translucent material is the classic macOS blur, not Apple's newest "liquid glass", which Electron does not offer. In dark appearance, over a bright desktop, the panel reads as a mid grey.
+
 The language is in **Settings > Preferences > Language**: Automatic, Português or English. With Automatic, the app uses Portuguese when macOS is in Portuguese and English in any other case. The icon's menu and the notifications follow the same language.
 
 ### Settings
@@ -233,7 +262,7 @@ The language is in **Settings > Preferences > Language**: Automatic, Português 
   <img src="docs/settings.en.webp" width="830" alt="The settings root page, the device list with the TV selected, and the schedules page" />
 </p>
 
-**Settings** has three pages: **Device** (the list of TVs on the account), **Schedules** and **Preferences**. Preferences holds the notifications, the global shortcut, the volume in the icon (Mac only), **Show the icon in the Dock** (Mac only), **Open at login**, **Check for new versions** and the **Language**.
+**Settings** has three pages: **Device** (the list of TVs on the account), **Schedules** and **Preferences**. Preferences holds the notifications, the global shortcut, the volume in the icon (Mac only), **Show the icon in the Dock** (Mac only), **Open at login**, **Check for new versions**, **Panel style** and the **Language**. In Tabs, Settings shows only **Device** and **Preferences**; the schedules are on the **Routines** tab.
 
 ### New versions
 
@@ -368,6 +397,7 @@ On Windows, turn off "Open at login" in the settings, click **Quit** in the icon
 ## Credits
 
 - The code comes from [WindFree](https://github.com/kevinnfsilva/samsung-windfree-menubar-app), the Samsung air conditioner panel by the same author. WindFree is based on the Windows tray app, [samsung-windfree-tray-app](https://github.com/c0dag/samsung-windfree-tray-app) by [@c0dag](https://github.com/c0dag).
+- Netflix and YouTube marks from [Simple Icons](https://simpleicons.org), under the CC0 licence. The trademarks belong to their owners.
 - Icons from [Lucide](https://lucide.dev).
 
 Independent project, not affiliated with Samsung.

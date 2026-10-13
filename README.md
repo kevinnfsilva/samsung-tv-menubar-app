@@ -44,15 +44,15 @@ curl -fsSL https://raw.githubusercontent.com/kevinnfsilva/samsung-tv-menubar-app
 </div>
 
 <p align="center">
-  <img src="docs/hero.pt-BR.webp" width="830" alt="O painel do TV Remote em três estados: ligada com volume 12, com o mudo ligado e desligada" />
+  <img src="docs/hero.pt-BR.webp" width="830" alt="O painel compacto do TV Remote em três estados: ligada com volume 12, com o controle remoto aberto e desligada" />
 </p>
 
-Um painel na barra de menus do Mac para controlar uma TV Samsung pelo SmartThings. O ícone mostra o volume e, com um clique, abre o painel: ligar e desligar, volume, mudo, entrada, imagem, som, canal e um controle remoto na tela, com atalhos para Netflix, YouTube, Prime Video e Disney+.
+Um painel na barra de menus do Mac para controlar uma TV Samsung pelo SmartThings. O ícone mostra o volume e, com um clique, abre o painel: ligar e desligar, volume, mudo, entrada, imagem, som, canal e um controle remoto desenhado, com atalhos para Netflix, YouTube, Prime Video e Disney+.
 
 Este projeto nasceu do [WindFree](https://github.com/kevinnfsilva/samsung-windfree-menubar-app), o painel do ar-condicionado Samsung, e usa o mesmo código, com a parte da TV no lugar da parte do ar. O WindFree, por sua vez, é baseado no [app de bandeja para Windows](https://github.com/c0dag/samsung-windfree-tray-app) do [@c0dag](https://github.com/c0dag), que foi portado para a barra de menus do macOS.
 
 <p align="center">
-  <img src="docs/demo.pt-BR.gif" width="420" alt="Demonstração: o volume sobe, o mudo é ligado, a lista de entradas abre e a entrada muda para HDMI 2, o Controle abre e a Netflix é aberta" />
+  <img src="docs/demo.pt-BR.gif" width="420" alt="Demonstração: o volume sobe, o Controle abre, as teclas acendem a luz e a Netflix é aberta; o painel troca para as abas e volta" />
 </p>
 
 <p align="center"><sub>As imagens e a demonstração saem do código real do painel, com uma TV simulada. O ponteiro do vídeo foi desenhado por cima.</sub></p>
@@ -135,11 +135,14 @@ Com a barra de menus cheia, o que é comum nos MacBooks com notch, o ícone novo
 
 ## O que dá para fazer
 
+**Novidades da 0.2.0.** O painel usa o visual nativo do macOS: o material translúcido do sistema, os cantos e a sombra do sistema, controles no estilo da Central de Controle e uma só cor de destaque, a cor de destaque do sistema. O painel tem dois estilos, **Compacto** (o padrão) e **Abas**, trocados com um clique. O controle remoto agora é desenhado, nos dois estilos, com teclado próprio e uma luz que pisca a cada comando. Netflix e YouTube mostram a marca de cada app; Prime Video e Disney+ têm um selo desenhado. Há animações na abertura do painel, nos botões, na tela da TV, no volume, nos menus e nas trocas de página e de aba.
+
 - Ligar e desligar a TV pelo botão do painel, pelo menu do ícone ou com a tecla Espaço.
 - Ajustar o volume de 0 a 100 pelo controle deslizante, pelos botões − e + ou pelas setas ↑ e ↓. Ligar e desligar o mudo.
 - Trocar a **entrada**, o **modo de imagem** e o **modo de som**. As opções são as que a TV informa.
 - Trocar de canal com os botões − e + do cartão **Canal**, quando a TV informa o canal.
-- Usar o **Controle**: direcional, OK, Voltar, Início, Menu, botões de reprodução e atalhos para Netflix, YouTube, Prime Video e Disney+.
+- Usar o **Controle** desenhado: direcional, OK, Voltar, Início, teclas de volume, de canal e de app, botões de reprodução, Menu, Fonte e Sair. Também dá para usar o teclado.
+- Escolher o estilo do painel, **Compacto** ou **Abas**, com um clique.
 - Programar um **timer** (de 30 minutos a 8 horas) e **agendamentos** por horário e dia da semana.
 - Receber avisos: a TV ficar offline e a TV ficar ligada por muito tempo.
 - Abrir o painel por um atalho global (desligado por padrão).
@@ -147,7 +150,7 @@ Com a barra de menus cheia, o que é comum nos MacBooks com notch, o ícone novo
 - Aparência clara ou escura, seguindo o sistema, e telas em português ou inglês.
 - Mostrar o volume no ícone da barra de menus, abrir com o macOS, esconder o ícone do Dock e saber quando sai uma versão nova.
 
-Testado numa Samsung Crystal UHD de 75 polegadas (UN75CU8000): ligar e desligar pela rede, volume, mudo, modo de imagem, modo de som, abrir YouTube e Netflix, a tecla Início e as teclas de canal funcionaram. As setas, Voltar e play/pause são enviadas, mas a TV não informa se a tela mudou. O modo de imagem só muda enquanto alguma coisa está tocando. Timer, agendamentos e avisos foram testados só com uma TV simulada. Os atalhos de Prime Video e Disney+ não foram testados na TV. O instalador para Intel e o Windows não foram executados.
+Testado numa Samsung Crystal UHD de 75 polegadas (UN75CU8000) com o visual da 0.2.0: ligar e desligar pelo painel, trocar de estilo e as teclas de volume do controle desenhado. Continuam valendo os testes da 0.1.0, porque os comandos são os mesmos: ligar e desligar pela rede, volume, mudo, modo de imagem, modo de som, abrir YouTube e Netflix, a tecla Início e as teclas de canal funcionaram. As setas, Voltar e play/pause são enviadas, mas a TV não informa se a tela mudou. O modo de imagem só muda enquanto alguma coisa está tocando. Timer, agendamentos e avisos foram testados só com uma TV simulada. Os atalhos de Prime Video e Disney+ não foram testados na TV. O instalador para Intel e o Windows não foram executados.
 
 ## Uso
 
@@ -163,35 +166,59 @@ Testado numa Samsung Crystal UHD de 75 polegadas (UN75CU8000): ligar e desligar 
 
 ### O painel
 
-De cima para baixo:
+**Compacto** (o padrão) cabe numa tela só, de cima para baixo:
 
 - O nome da TV e o botão que liga e desliga a TV.
 - A tela da TV: mostra o app em uso (YouTube, Netflix e outros que o app reconhece) ou, se nenhum for reconhecido, a entrada, e embaixo o modo de imagem. Com a TV desligada, a tela fica escura.
 - O volume em número grande, o interruptor **Mudo**, o controle deslizante e os botões − e +.
-- Quatro cartões: **Entrada**, **Canal** (com − e +), **Imagem** e **Som**. Entrada, Imagem e Som abrem uma lista com as opções que a TV informa.
-- O rodapé mostra o estado, como "Conectado", "Sincronizando…" ou "A TV está offline", e tem os botões **Controle**, **Timer** e **Ajustes**.
+- Uma faixa com quatro células: **Entrada**, **Canal** (com − e +), **Imagem** e **Som**. Entrada, Imagem e Som abrem uma lista com as opções que a TV informa.
+- O rodapé mostra o estado, como "Conectado", "Sincronizando…" ou "A TV está offline", e tem os botões **Controle**, **Timer**, **Ajustes** e o de layout (veja abaixo).
+
+**Abas** é o mesmo painel com uma barra de abas de ícones (**Início**, **Controle**, **Apps**, **Rotinas** e **Ajustes**) e mais altura. Em **Início** ficam a TV, o volume, o cartão **Favoritos** (Netflix, YouTube, Prime Video e Disney+), o cartão **Entradas** e, mais abaixo, **Imagem** e **Som**. **Controle** é o controle remoto desenhado. **Apps** mostra os quatro apps em blocos. **Rotinas** tem o timer e os agendamentos. **Ajustes** tem **Aparelho** e **Preferências**. O rodapé mostra a conexão e o modelo da TV.
+
+<p align="center">
+  <img src="docs/tabs.pt-BR.webp" width="830" alt="O painel no estilo Abas: a aba Início, a aba Controle com o controle remoto desenhado e a aba Apps" />
+</p>
+
+Para trocar de estilo, use o botão de layout: no rodapé do Compacto, ou ao lado da barra de abas no Abas. A escolha também fica em **Ajustes > Preferências > Estilo do painel**, e o painel abre no estilo escolhido por último.
 
 Quando algo dá errado, o rodapé diz o quê: "Sem internet ou SmartThings fora do ar", "A TV está offline", "Nenhuma TV nesta conta", "Esta TV não está mais na conta" (com o atalho **Escolher outra TV**), "O SmartThings demorou para responder" ou "Sem resposta do SmartThings". Quase todos trazem **Tentar de novo**. Quando a TV não confirma uma mudança, o rodapé diz quais ajustes ficaram sem confirmação.
 
 ### Controle
 
 <p align="center">
-  <img src="docs/remote.pt-BR.webp" width="830" alt="A página Controle, um menu de entrada aberto na tela principal e o menu do timer com um timer ativo" />
+  <img src="docs/remote.pt-BR.webp" width="830" alt="A página Controle, o menu de entrada aberto e o menu do timer com um timer ativo" />
 </p>
 
-Clique no ícone de controle no rodapé. A página **Controle** tem:
+O controle remoto é desenhado e aparece nos dois estilos: no Compacto, pelo botão **Controle** do rodapé; no Abas, pela aba **Controle**. Ele tem:
 
-- O direcional (↑, ←, OK, →, ↓), e abaixo **Voltar**, **Início** e **Menu**.
-- Os botões de reprodução: retroceder, reproduzir, pausar, parar e avançar.
-- **Apps**, com **Netflix**, **YouTube**, **Prime Video** e **Disney+**, que abrem o app na TV.
+- Um botão de ligar e desligar no topo, e o direcional (↑, ←, OK, →, ↓).
+- **Voltar**, **Início** e o botão de reproduzir ou pausar.
+- Um balancim de volume (+ e −), com o **Mudo** no meio, e um balancim de canal (**CH** ↑ e ↓).
+- Três teclas de app: **Netflix**, **YouTube** e **Prime Video**, que abrem o app na TV.
+- Uma linha com **Menu**, **Fonte**, **Sair**, **Retroceder**, **Parar** e **Avançar**.
+- Uma luz no topo que pisca a cada comando enviado.
 
-Com a página aberta, as setas do teclado são o direcional, Enter é OK (quando nenhum botão está com o foco) e Backspace é Voltar. Cada toque vai para a TV na ordem em que foi dado. O Controle passa pelo SmartThings, então cada tecla leva um ou dois segundos; navegar em menus com as setas é mais lento que o controle físico.
+O **Disney+** só aparece no Abas, nos **Favoritos** e na aba **Apps**. O Compacto não tem tecla para ele.
+
+Com o controle aberto, o teclado manda:
+
+| Tecla | Função |
+|---|---|
+| ↑ ↓ ← → | Direcional |
+| Enter | OK (quando nenhum botão está com o foco) |
+| Backspace | Voltar |
+| Espaço | Reproduzir ou pausar (quando nenhum botão está com o foco) |
+| + e − | Volume |
+| M | Ligar ou desligar o mudo |
+
+Cada toque vai para a TV na ordem em que foi dado. O Controle passa pelo SmartThings, então cada tecla leva um ou dois segundos; navegar em menus com as setas é mais lento que o controle físico.
 
 ### Timer e agendamentos
 
-**Timer.** Clique no relógio do rodapé. Com a TV ligada, as opções são "Desligar em 30 min", 1 h, 2 h, 4 h e 8 h; com a TV desligada, são as mesmas para ligar. O rodapé mostra "Desliga às…" ou "Liga às…" enquanto o timer está ativo, e **Cancelar timer** o desfaz. Só existe um timer por vez.
+**Timer.** Clique no relógio do rodapé (no Compacto). No Abas, o timer fica na aba **Rotinas**. Com a TV ligada, as opções são "Desligar em 30 min", 1 h, 2 h, 4 h e 8 h; com a TV desligada, são as mesmas para ligar. O rodapé mostra "Desliga às…" ou "Liga às…" enquanto o timer está ativo, e **Cancelar timer** o desfaz. Só existe um timer por vez.
 
-**Agendamentos.** Em **Ajustes > Agendamentos**, escolha a hora, os dias da semana e a ação (**Ligar** ou **Desligar**). Os dias podem ser todos, dias úteis, fins de semana ou uma combinação. Cada agendamento tem um botão para ativar ou desativar e uma lixeira.
+**Agendamentos.** Em **Ajustes > Agendamentos** (no Abas, na aba **Rotinas**), escolha a hora, os dias da semana e a ação (**Ligar** ou **Desligar**). Os dias podem ser todos, dias úteis, fins de semana ou uma combinação. Cada agendamento tem um botão para ativar ou desativar e uma lixeira.
 
 Valem algumas regras para o timer e os agendamentos:
 
@@ -225,6 +252,8 @@ O painel acompanha o modo claro ou escuro do sistema.
   <img src="docs/themes.pt-BR.webp" width="600" alt="O painel principal e os ajustes, lado a lado em modo escuro e em modo claro" />
 </p>
 
+O material translúcido do painel é o desfoque clássico do macOS, não o "liquid glass" mais novo da Apple, que o Electron ainda não oferece. No modo escuro, sobre um fundo claro, o painel fica cinza médio.
+
 O idioma fica em **Ajustes > Preferências > Idioma**: Automático, Português ou English. No Automático, o app usa português quando o macOS está em português e inglês em qualquer outro caso. O menu do ícone e os avisos seguem o mesmo idioma.
 
 ### Ajustes
@@ -233,7 +262,7 @@ O idioma fica em **Ajustes > Preferências > Idioma**: Automático, Português o
   <img src="docs/settings.pt-BR.webp" width="830" alt="A página de ajustes, a lista de aparelhos com a TV escolhida e a página de agendamentos" />
 </p>
 
-Em **Ajustes** ficam três páginas: **Aparelho** (a lista de TVs da conta), **Agendamentos** e **Preferências**. Preferências tem os avisos, o atalho global, o volume no ícone (só no Mac), **Mostrar o ícone no Dock** (só no Mac), **Abrir com o macOS**, **Procurar versões novas** e o **Idioma**.
+Em **Ajustes** ficam três páginas: **Aparelho** (a lista de TVs da conta), **Agendamentos** e **Preferências**. Preferências tem os avisos, o atalho global, o volume no ícone (só no Mac), **Mostrar o ícone no Dock** (só no Mac), **Abrir com o macOS**, **Procurar versões novas**, o **Estilo do painel** e o **Idioma**. No Abas, Ajustes mostra só **Aparelho** e **Preferências**; os agendamentos ficam na aba **Rotinas**.
 
 ### Versões novas
 
@@ -368,6 +397,7 @@ No Windows, desligue "Abrir com o Windows" nos ajustes, clique em **Sair** no me
 ## Créditos
 
 - O código vem do [WindFree](https://github.com/kevinnfsilva/samsung-windfree-menubar-app), o painel do ar-condicionado Samsung do mesmo autor. O WindFree é baseado no app de bandeja para Windows, o [samsung-windfree-tray-app](https://github.com/c0dag/samsung-windfree-tray-app) do [@c0dag](https://github.com/c0dag).
+- Marcas de Netflix e YouTube do [Simple Icons](https://simpleicons.org), sob licença CC0. As marcas pertencem aos seus donos.
 - Ícones do [Lucide](https://lucide.dev).
 
 Projeto independente, sem vínculo com a Samsung.
