@@ -1,0 +1,66 @@
+{
+  "name": "samsung-tv-menubar-app",
+  "productName": "TV Remote",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Controle a TV Samsung pela barra de menus do Mac, via SmartThings",
+  "homepage": "https://github.com/kevinnfsilva/samsung-tv-menubar-app#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kevinnfsilva/samsung-tv-menubar-app.git"
+  },
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder --mac"
+  },
+  "devDependencies": {
+    "electron": "^44.7.0",
+    "electron-builder": "^26.15.3"
+  },
+  "dependencies": {
+    "@smartthings/cli": "^2.1.2",
+    "lucide": "^1.55.0"
+  },
+  "build": {
+    "appId": "io.github.kevinnfsilva.tvremote",
+    "artifactName": "TVRemote-${arch}.${ext}",
+    "asar": false,
+    "npmRebuild": false,
+    "publish": null,
+    "files": [
+      "main.js",
+      "bridge.js",
+      "preload.js",
+      "tv.mjs",
+      "smartthings.mjs",
+      "lib",
+      "locales",
+      "panel",
+      "!node_modules/lucide/dist/{cjs,esm}",
+      "!node_modules/lucide/dist/umd/{lucide.js,*.map}",
+      "!node_modules/{esbuild,@esbuild,fsevents,tsx}/**"
+    ],
+    "mac": {
+      "category": "public.app-category.utilities",
+      "target": [
+        {
+          "target": "dmg",
+          "arch": [
+            "arm64",
+            "x64"
+          ]
+        }
+      ],
+      "identity": "-",
+      "hardenedRuntime": false,
+      "notarize": false,
+      "extendInfo": {
+        "LSUIElement": true
+      }
+    },
+    "dmg": {
+      "writeUpdateInfo": false
+    }
+  }
+}
