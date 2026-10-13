@@ -5,7 +5,7 @@ const WEEKDAY_SET = [1, 2, 3, 4, 5];
 const WEEKEND_SET = [0, 6];
 const SAVED_FEEDBACK_MS = 1600;
 
-const scheduleDraft = { acao: 'desliga', dias: [...ALL_DAYS], favorito: null };
+const scheduleDraft = { acao: 'desliga', dias: [...ALL_DAYS] };
 let savedFeedbackTimer = null;
 // Dictionary key of the message the save button shows for a moment after a save, so a language change translates it.
 let saveFeedback = null;
@@ -23,7 +23,6 @@ function daysText(dias) {
 
 function scheduleRow(agenda) {
   const action = scheduleActions().find((item) => item.value === agenda.acao);
-  const favorite = settings.favoritos.find((item) => item.id === agenda.favorito);
   const time = formatTimeOfDay(agenda.hora);
   const unit = otherUnitName(agenda.aparelho);
   const toggle = el('button', {
@@ -60,7 +59,6 @@ function scheduleRow(agenda) {
       { class: 'row-text' },
       el('span', { class: 'row-title' }, action?.label ?? agenda.acao),
       el('span', { class: 'row-note' }, daysText(agenda.dias)),
-      favorite && el('span', { class: 'row-note' }, t('schedules.withFavorite', { name: favorite.nome })),
       unit && el('span', { class: 'row-note row-unit' }, t('schedules.unit', { name: unit })),
     ),
     toggle,
@@ -73,8 +71,8 @@ function renderScheduleList() {
   const list = byId('schedules-list');
   list.hidden = agendas.length === 0;
   byId('schedules-empty').hidden = agendas.length > 0;
-  // Which unit is on screen decides whose name shows, so it is part of what the list is drawn from.
-  if (!changed('schedules', [agendas, settings.favoritos.map(({ id, nome }) => [id, nome]), view?.device?.id])) return;
+  // Which TV is on screen decides whose name shows, so it is part of what the list is drawn from.
+  if (!changed('schedules', [agendas, view?.device?.id])) return;
   const focused = list.contains(document.activeElement) ? document.activeElement.dataset : null;
   const sorted = [...agendas].sort((a, b) => a.hora.localeCompare(b.hora));
   list.replaceChildren(...sorted.map(scheduleRow));
@@ -94,16 +92,6 @@ function dayChip(index) {
   return chip;
 }
 
-function favoriteChoice(favorite) {
-  const attrs = { type: 'button', class: 'chip', 'aria-pressed': 'false', 'data-id': favorite.id ?? '' };
-  const chip = el('button', attrs, favorite.nome);
-  chip.addEventListener('click', () => {
-    scheduleDraft.favorito = favorite.id;
-    renderScheduleForm();
-  });
-  return chip;
-}
-
 function renderScheduleForm() {
   const days = byId('schedule-days');
   if (days.children.length === 0) days.replaceChildren(...ALL_DAYS.map(dayChip));
@@ -116,18 +104,6 @@ function renderScheduleForm() {
     scheduleDraft.acao = value;
     renderScheduleForm();
   });
-  const { favoritos } = settings;
-  if (!favoritos.some((favorite) => favorite.id === scheduleDraft.favorito)) scheduleDraft.favorito = null;
-  const row = byId('schedule-favorite-row');
-  row.hidden = scheduleDraft.acao !== 'liga' || favoritos.length === 0;
-  const choices = byId('schedule-favorites');
-  if (changed('schedule-favorites', favoritos.map(({ id, nome }) => [id, nome]))) {
-    choices.replaceChildren(...[{ id: null }, ...favoritos].map(favoriteChoice));
-  }
-  choices.firstElementChild.textContent = t('schedules.favoriteNone');
-  for (const chip of choices.children) {
-    chip.setAttribute('aria-pressed', String((chip.dataset.id || null) === scheduleDraft.favorito));
-  }
   const save = byId('schedule-save');
   save.textContent = saveFeedback ? t(saveFeedback) : t('schedules.add');
   save.disabled = saveFeedback !== null || scheduleDraft.dias.length === 0;
@@ -158,7 +134,6 @@ byId('schedule-form').addEventListener('submit', async (event) => {
     hora,
     dias: [...scheduleDraft.dias].sort((a, b) => a - b),
     acao: scheduleDraft.acao,
-    favorito: scheduleDraft.acao === 'liga' ? scheduleDraft.favorito : null,
   });
   confirmSaved(saved !== null);
 });

@@ -1,11 +1,11 @@
-// Texts live in ../locales/<code>.js, which register themselves on WindFreeLocales (the CSP only lets the page run scripts
+// Texts live in ../locales/<code>.js, which register themselves on AppLocales (the CSP only lets the page run scripts
 // from the app itself). t() reads the active dictionary, then English, then falls back to the key.
 
 const FALLBACK_LOCALE = 'en';
 
 let activeLocale = FALLBACK_LOCALE;
-let pluralRules = new Intl.PluralRules(WindFreeLocales[FALLBACK_LOCALE]['meta.intl']);
-let numberFormat = new Intl.NumberFormat(WindFreeLocales[FALLBACK_LOCALE]['meta.intl'], { maximumFractionDigits: 1 });
+let pluralRules = new Intl.PluralRules(AppLocales[FALLBACK_LOCALE]['meta.intl']);
+let numberFormat = new Intl.NumberFormat(AppLocales[FALLBACK_LOCALE]['meta.intl'], { maximumFractionDigits: 1 });
 
 function primaryOf(tag) {
   return String(tag).toLowerCase().split(/[-_]/)[0];
@@ -13,26 +13,26 @@ function primaryOf(tag) {
 
 // Same matching as lib/i18n.js: the same code, then the same language ("pt-PT" gets "pt-BR"), then English.
 function matchLocale(wanted) {
-  const codes = Object.keys(WindFreeLocales);
+  const codes = Object.keys(AppLocales);
   const tag = String(wanted ?? '').toLowerCase();
   return codes.find((code) => code.toLowerCase() === tag) ?? codes.find((code) => primaryOf(code) === primaryOf(tag)) ?? FALLBACK_LOCALE;
 }
 
 function intlLocale() {
-  return WindFreeLocales[activeLocale]['meta.intl'];
+  return AppLocales[activeLocale]['meta.intl'];
 }
 
 // A fractional count ("1.5 hours") always takes the plural form, whatever the language's rules say about 1.5.
 function pluralKey(key, count) {
   const category = Number.isInteger(count) ? pluralRules.select(count) : 'other';
-  const dictionary = WindFreeLocales[activeLocale];
-  const fallback = WindFreeLocales[FALLBACK_LOCALE];
+  const dictionary = AppLocales[activeLocale];
+  const fallback = AppLocales[FALLBACK_LOCALE];
   return [`${key}.${category}`, `${key}.other`].find((name) => name in dictionary || name in fallback) ?? key;
 }
 
 function t(key, params = {}) {
   const name = typeof params.count === 'number' ? pluralKey(key, params.count) : key;
-  const template = WindFreeLocales[activeLocale][name] ?? WindFreeLocales[FALLBACK_LOCALE][name] ?? key;
+  const template = AppLocales[activeLocale][name] ?? AppLocales[FALLBACK_LOCALE][name] ?? key;
   return template.replace(/\{(\w+)\}/g, (match, param) => {
     if (!(param in params)) return match;
     return param === 'count' && typeof params.count === 'number' ? numberFormat.format(params.count) : String(params[param]);

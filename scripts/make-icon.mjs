@@ -32,7 +32,7 @@ if (typeof electron === 'string') {
 
 // Node side: has Electron draw every size into a temporary folder, then packs them with iconutil.
 function buildIcon() {
-  const work = fs.mkdtempSync(path.join(os.tmpdir(), 'windfree-icon-'));
+  const work = fs.mkdtempSync(path.join(os.tmpdir(), 'tvremote-icon-'));
   try {
     // With ELECTRON_RUN_AS_NODE set, the child would be plain Node and land in this branch again.
     const { ELECTRON_RUN_AS_NODE: _, ...env } = process.env;

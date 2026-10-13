@@ -50,16 +50,11 @@
   --fog: #8b939c;
   --dim: #59616a;
 
-  /* Mode tints and signals */
+  /* Signals and the accent (the TV glows in frost) */
   --signal: #ff9f8a;
   --frost: #a7d7f1;
-  --mint: #a5e1cd;
-  --mist: #d5dce3;
-  --amber: #efd09a;
-  --ember: #f3b58f;
   --on-tint: #0d1a26;
   --accent-off: #9aa2ab;
-  --warning-text: #d5dce3;
 
   /* Controls */
   --switch-off: #2a3037;
@@ -67,32 +62,21 @@
   --switch-knob-on: #ffffff;
   --thumb-top: #fbfcfd;
   --thumb-bottom: #dce2e8;
-  --dot-off: #343b43;
-  --meter-track: #2a3037;
 
-  /* Charts */
-  --chart-bar: #56616c;
-  --chart-grid: rgba(255, 255, 255, 0.1);
-
-  /* The AC unit in the scene (gradient stops are set from these in the rules further down) */
-  --spot: #ffffff;
-  --spot-opacity: 0.07;
-  --unit-body-top: #ffffff;
-  --unit-body-mid: #f2f4f6;
-  --unit-body-low: #dde2e7;
-  --unit-curve-left: 0.14;
-  --unit-curve-right: 0.16;
-  --unit-under-top: #c9d0d7;
-  --unit-under-low: #9ea7b1;
-  --unit-edge: transparent;
-  --unit-edge-width: 0;
-  --unit-flap: #e2e7ec;
-  --unit-hole: #a2abb5;
-  --unit-hole-lit: #2b5f80;
-  --unit-display: #6fc3ee;
-  --unit-filter: none;
-  --unit-filter-off: brightness(0.84) saturate(0.85);
-  --contact: #000000;
+  /* The TV: bezel, stand and chin, the screen when off and when on, and the text drawn on a lit screen */
+  --tv-bezel-top: #1a1f26;
+  --tv-bezel-low: #06080b;
+  --tv-bezel-line: rgba(255, 255, 255, 0.12);
+  --tv-stand: #1d2228;
+  --tv-chin: #3b434d;
+  --tv-screen-off-top: #1b2027;
+  --tv-screen-off-low: #0a0c0f;
+  --tv-screen-on-top: #2f6a94;
+  --tv-screen-on-low: #10283c;
+  --tv-text: #f2f6fa;
+  --tv-text-dim: rgba(242, 246, 250, 0.72);
+  --tv-glass: #ffffff;
+  --tv-contact: #000000;
   --contact-opacity: 0.6;
   --glow-opacity: 0.14;
 
@@ -140,39 +124,30 @@
     /* Deeper tints, so lines and icons stay visible on a light surface and white text fits on a filled button */
     --signal: #b8321f;
     --frost: #1d78ad;
-    --mint: #17785a;
-    --mist: #5b6978;
-    --amber: #9a6205;
-    --ember: #b4471a;
     --on-tint: #ffffff;
     --accent-off: #78838f;
-    --warning-text: #3a4550;
 
     --switch-off: #828d99;
     --switch-knob: #ffffff;
     --thumb-top: #ffffff;
     --thumb-bottom: #e6ebf0;
-    --dot-off: #c3cbd3;
-    --meter-track: #d5dbe2;
 
-    --chart-bar: #828d99;
-    --chart-grid: rgba(24, 36, 50, 0.12);
-
-    /* The unit stays porcelain white, but gets an edge, a shadow and darker ends to stand off a light card. */
-    --spot-opacity: 0.45;
-    --unit-body-mid: #f3f5f7;
-    --unit-body-low: #e0e5ea;
-    --unit-curve-left: 0.2;
-    --unit-curve-right: 0.22;
-    --unit-edge: rgba(24, 40, 58, 0.26);
-    --unit-edge-width: 1;
-    --unit-flap: #d5dce3;
-    --unit-display: #0c6fa8;
-    --unit-filter: drop-shadow(0 2px 2.5px rgba(24, 36, 50, 0.22));
-    --unit-filter-off: brightness(0.92) saturate(0.85) drop-shadow(0 2px 2.5px rgba(24, 36, 50, 0.22));
-    --contact: #1b2c3c;
+    /* The TV stays black on a light card; its screen is a deeper blue, its text white */
+    --tv-bezel-top: #2b323b;
+    --tv-bezel-low: #13171c;
+    --tv-bezel-line: rgba(24, 36, 50, 0.35);
+    --tv-stand: #59636f;
+    --tv-chin: #475160;
+    --tv-screen-off-top: #303842;
+    --tv-screen-off-low: #161b21;
+    --tv-screen-on-top: #3f8fc6;
+    --tv-screen-on-low: #1b5b8a;
+    --tv-text: #ffffff;
+    --tv-text-dim: rgba(255, 255, 255, 0.82);
+    --tv-glass: #ffffff;
+    --tv-contact: #1b2c3c;
     --contact-opacity: 0.32;
-    --glow-opacity: 0.18;
+    --glow-opacity: 0.2;
   }
 }
 
@@ -238,8 +213,6 @@ svg.lucide {
 .panel {
   --tint: var(--frost);
   --accent: var(--accent-off);
-  --flow-duration: 2.4s;
-  --flow-strength: 0.85;
   position: relative;
   width: 372px;
   height: 496px;
@@ -251,49 +224,8 @@ svg.lucide {
   box-shadow: var(--panel-shadow);
 }
 
-.panel[data-mode='dry'] {
-  --tint: var(--mint);
-}
-
-.panel[data-mode='wind'] {
-  --tint: var(--mist);
-}
-
-.panel[data-mode='auto'] {
-  --tint: var(--amber);
-}
-
-.panel[data-mode='heat'] {
-  --tint: var(--ember);
-}
-
 .panel[data-power='on'] {
   --accent: var(--tint);
-}
-
-.panel[data-fan='low'] {
-  --flow-duration: 3.4s;
-  --flow-strength: 0.6;
-}
-
-.panel[data-fan='medium'] {
-  --flow-duration: 2.6s;
-  --flow-strength: 0.75;
-}
-
-.panel[data-fan='high'] {
-  --flow-duration: 1.8s;
-  --flow-strength: 0.92;
-}
-
-.panel[data-fan='turbo'] {
-  --flow-duration: 1.15s;
-  --flow-strength: 1;
-}
-
-.panel[data-mode='dry'] {
-  --flow-duration: 3.6s;
-  --flow-strength: 0.5;
 }
 
 .panel.entering {
@@ -356,35 +288,23 @@ svg.lucide {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 12px;
   padding: 16px 16px 0 20px;
 }
 
-.readings {
-  display: flex;
-  gap: 16px;
-}
-
-.reading {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 13px;
-  color: var(--fog);
-}
-
-.reading svg.lucide {
+.device-name {
+  min-width: 0;
+  overflow: hidden;
   font-size: 15px;
-}
-
-.reading strong {
-  font-size: 14px;
-  font-weight: 600;
-  font-variant-numeric: tabular-nums;
+  font-weight: 500;
+  white-space: nowrap;
+  text-overflow: ellipsis;
   color: var(--porcelain);
 }
 
 .power {
   display: grid;
+  flex: none;
   place-items: center;
   width: 40px;
   height: 40px;
@@ -418,9 +338,10 @@ svg.lucide {
     0 0 22px color-mix(in srgb, var(--tint) 30%, transparent);
 }
 
-/* Unit and airflow */
+/* The TV: a thin-bezel screen on a small stand. It glows when on, and its two lines of text sit on the screen. */
 
 .hero {
+  position: relative;
   height: 156px;
   margin: 0;
 }
@@ -432,217 +353,115 @@ svg.lucide {
   overflow: visible;
 }
 
-.mode-glow {
+.halo {
   fill: var(--tint);
   opacity: 0;
-  transition:
-    opacity 0.9s,
-    fill 0.6s;
+  transition: opacity 0.9s;
 }
 
-.panel[data-power='on'] .mode-glow {
+.panel[data-power='on'] .halo {
   opacity: var(--glow-opacity);
 }
 
 .contact {
-  fill: var(--contact);
+  fill: var(--tv-contact);
   opacity: var(--contact-opacity);
 }
 
-.unit {
-  filter: var(--unit-filter);
-  transition: filter 0.6s;
+/* The gradients take their colours from these stops, so the theme and the power state can reach them. */
+.bezel-top {
+  stop-color: var(--tv-bezel-top);
 }
 
-.panel[data-power='off'] .unit {
-  filter: var(--unit-filter-off);
+.bezel-low {
+  stop-color: var(--tv-bezel-low);
 }
 
-/* The unit is drawn with gradients whose stops are coloured here, so the theme can reach them. */
-.spot-core,
-.spot-edge {
-  stop-color: var(--spot);
-}
-
-.spot-core {
-  stop-opacity: var(--spot-opacity);
-}
-
-.body-top {
-  stop-color: var(--unit-body-top);
-}
-
-.body-mid {
-  stop-color: var(--unit-body-mid);
-}
-
-.body-low {
-  stop-color: var(--unit-body-low);
-}
-
-.curve-left {
-  stop-opacity: var(--unit-curve-left);
-}
-
-.curve-right {
-  stop-opacity: var(--unit-curve-right);
-}
-
-.under-top {
-  stop-color: var(--unit-under-top);
-}
-
-.under-low {
-  stop-color: var(--unit-under-low);
-}
-
-.unit-edge {
-  stroke: var(--unit-edge);
-  stroke-width: var(--unit-edge-width);
-}
-
-.hole {
-  fill: var(--unit-hole);
-  transition: fill 0.8s;
-}
-
-.panel[data-power='on'][data-windfree='true'] .hole {
-  fill: color-mix(in srgb, var(--tint) 55%, var(--unit-hole-lit));
-}
-
-.unit-display {
-  font: 600 10px Bahnschrift, system-ui, sans-serif;
-  letter-spacing: 0.04em;
-  fill: var(--unit-display);
-  opacity: 0;
-  transition: opacity 0.5s;
-}
-
-.panel[data-power='on'][data-display='on'] .unit-display {
-  opacity: 0.95;
-}
-
-.flap {
-  fill: var(--unit-flap);
-  transform-box: fill-box;
-  transform-origin: 50% 0%;
-  transition: transform 0.9s var(--ease-out);
-}
-
-.panel[data-power='on'] .flap {
-  transform: translateY(7px) scaleY(0.38);
-}
-
-/* In WindFree the blade closes and the air seeps out through the micro-holes instead. */
-.panel[data-power='on'][data-windfree='true'] .flap {
-  transform: none;
-}
-
-.airflow {
-  opacity: 0;
-  transition: opacity 0.5s;
-}
-
-.panel[data-power='on']:not([data-windfree='true']) .airflow {
-  opacity: var(--flow-strength);
-  transition: opacity 0.9s 0.35s;
-}
-
-.tint-stop {
-  stop-color: var(--tint);
-}
-
-.sheet {
-  opacity: 0.16;
-}
-
-.strand,
-.pulse {
+.bezel-line {
   fill: none;
-  stroke: var(--tint);
-  stroke-linecap: round;
+  stroke: var(--tv-bezel-line);
+  stroke-width: 1;
 }
 
-.pulse {
-  stroke-dasharray: var(--dash) var(--gap);
-  animation: flow var(--flow-duration) linear infinite;
-  animation-delay: var(--delay);
+.screen-top {
+  stop-color: var(--tv-screen-off-top);
+  transition: stop-color 0.7s;
 }
 
-@keyframes flow {
-  to {
-    stroke-dashoffset: calc(var(--cycle) * -1);
-  }
+.screen-low {
+  stop-color: var(--tv-screen-off-low);
+  transition: stop-color 0.7s;
 }
 
-.sway-h,
-.sway-v {
-  transform-box: view-box;
-  transform-origin: 160px 90px;
+.panel[data-power='on'] .screen-top {
+  stop-color: var(--tv-screen-on-top);
 }
 
-.panel:is([data-swing='vertical'], [data-swing='all']) .sway-v {
-  animation: sway-v 4.6s ease-in-out infinite alternate;
+.panel[data-power='on'] .screen-low {
+  stop-color: var(--tv-screen-on-low);
 }
 
-.panel:is([data-swing='horizontal'], [data-swing='all']) .sway-h {
-  animation: sway-h 6.2s ease-in-out infinite alternate;
+.chin {
+  fill: var(--tv-chin);
 }
 
-@keyframes sway-v {
-  from {
-    transform: scaleY(0.72);
-  }
-  to {
-    transform: scaleY(1.04);
-  }
+.stand-neck,
+.stand-base {
+  fill: var(--tv-stand);
 }
 
-@keyframes sway-h {
-  from {
-    transform: skewX(-13deg);
-  }
-  to {
-    transform: skewX(13deg);
-  }
+.glass {
+  pointer-events: none;
 }
 
-.drift {
+.glass-top,
+.glass-mid,
+.glass-low {
+  stop-color: var(--tv-glass);
+}
+
+.tv-text {
+  position: absolute;
+  top: 14px;
+  left: 62px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 248px;
+  height: 104px;
+  padding: 0 18px;
   opacity: 0;
-  transition: opacity 0.8s;
+  transition: opacity 0.6s;
 }
 
-.panel[data-power='on'][data-windfree='true'] .drift {
+.panel[data-power='on'] .tv-text {
   opacity: 1;
 }
 
-.mist {
-  fill: var(--tint);
-  opacity: 0.11;
+.tv-app,
+.tv-mode {
+  display: block;
+  max-width: 100%;
+  overflow: hidden;
+  text-align: center;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
-.dot {
-  fill: var(--tint);
-  opacity: 0;
-  animation: drift var(--dur) ease-in-out infinite;
-  animation-delay: var(--delay);
+.tv-app {
+  font-size: 22px;
+  font-weight: 500;
+  color: var(--tv-text);
 }
 
-@keyframes drift {
-  0% {
-    transform: translate(0, 0);
-    opacity: 0;
-  }
-  30% {
-    opacity: 0.95;
-  }
-  100% {
-    transform: translate(var(--dx), var(--dy));
-    opacity: 0;
-  }
+.tv-mode {
+  font-size: 13px;
+  color: var(--tv-text-dim);
 }
 
-/* Setpoint */
+/* Volume */
 
 .setpoint-row {
   display: flex;
@@ -655,7 +474,7 @@ svg.lucide {
 .setpoint {
   display: flex;
   align-items: flex-start;
-  gap: 3px;
+  gap: 6px;
   height: 66px;
   overflow: hidden;
 }
@@ -672,7 +491,7 @@ svg.lucide {
   transition: color 0.4s;
 }
 
-.panel:is([data-power='off'], [data-mode='wind']) .setpoint-value {
+.panel:is([data-power='off'], [data-muted='true']) .setpoint-value {
   color: var(--fog);
 }
 
@@ -699,9 +518,9 @@ svg.lucide {
 }
 
 .setpoint-unit {
-  margin-top: 9px;
-  font-size: 21px;
-  font-weight: 300;
+  margin-top: 12px;
+  font-size: 14px;
+  font-weight: 500;
   color: var(--fog);
 }
 
@@ -767,7 +586,7 @@ svg.lucide {
   transform: translateX(14px);
 }
 
-/* Temperature slider */
+/* Volume slider */
 
 .slider-row {
   display: grid;
@@ -836,6 +655,10 @@ svg.lucide {
   appearance: none;
 }
 
+.track input:disabled {
+  cursor: default;
+}
+
 .track input::-webkit-slider-runnable-track {
   height: 100%;
   background: transparent;
@@ -865,12 +688,12 @@ svg.lucide {
   color: var(--dim);
 }
 
-/* Controls strip */
+/* Strip: input, channel, picture and sound */
 
 .strip {
   display: grid;
-  grid-auto-columns: 1fr;
-  grid-auto-flow: column;
+  /* Input and channel are short; picture and sound take the room their names need */
+  grid-template-columns: 84px 80px 84px 96px;
   margin: 14px 14px 0;
   overflow: hidden;
   border-radius: 18px;
@@ -883,8 +706,9 @@ svg.lucide {
   flex-direction: column;
   align-items: flex-start;
   gap: 2px;
+  min-width: 0;
   height: 80px;
-  padding: 12px 11px 11px 12px;
+  padding: 12px 8px 11px 12px;
   text-align: left;
   transition: background 0.2s;
 }
@@ -893,9 +717,17 @@ svg.lucide {
   box-shadow: inset 1px 0 0 var(--hairline);
 }
 
-.cell:hover,
+.cell:hover:not(:disabled),
 .cell[aria-expanded='true'] {
   background: var(--wash-cell);
+}
+
+.cell:disabled {
+  opacity: 0.4;
+}
+
+.cell-plain {
+  cursor: default;
 }
 
 .cell-top {
@@ -909,11 +741,6 @@ svg.lucide {
 .cell-icon {
   font-size: 18px;
   color: var(--porcelain);
-  transition: color 0.4s;
-}
-
-.panel[data-power='on'] [data-icon-for='modo'] {
-  color: var(--accent);
 }
 
 .cell-chevron {
@@ -926,22 +753,6 @@ svg.lucide {
   transform: rotate(180deg);
 }
 
-.cell-dot {
-  width: 7px;
-  height: 7px;
-  margin-right: 3px;
-  border-radius: 50%;
-  background: var(--dot-off);
-  transition:
-    background 0.3s,
-    box-shadow 0.3s;
-}
-
-.cell[aria-checked='true'] .cell-dot {
-  background: var(--accent);
-  box-shadow: 0 0 8px color-mix(in srgb, var(--accent) 70%, transparent);
-}
-
 .cell-label {
   font-size: 12px;
   color: var(--fog);
@@ -950,10 +761,38 @@ svg.lucide {
 .cell-value {
   width: 100%;
   overflow: hidden;
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 600;
   white-space: nowrap;
   text-overflow: ellipsis;
+}
+
+/* Channel − and + sit in the top row of their cell, where the other cells keep their icon */
+.mini {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  font-size: 13px;
+  background: var(--field);
+  box-shadow: inset 0 0 0 1px var(--wash-strong);
+  transition:
+    background 0.2s,
+    opacity 0.2s,
+    transform 0.12s;
+}
+
+.mini:hover:not(:disabled) {
+  background: var(--wash-strong);
+}
+
+.mini:active:not(:disabled) {
+  transform: scale(0.92);
+}
+
+.mini:disabled {
+  opacity: 0.35;
 }
 
 /* Status */
@@ -993,9 +832,10 @@ svg.lucide {
   text-overflow: ellipsis;
 }
 
-/* A quiet line with no links below it has room for a second line: a timer of another unit names that unit, and the name
-   is the part that must not be cut. */
-.status-message[data-tone='quiet'] .status-body > span:first-child {
+/* A line with no links below it has room for a second line: a timer of another TV names that TV, and a list of
+   unconfirmed settings names every one of them; those are the parts that must not be cut. */
+.status-message[data-tone='quiet'] .status-body > span:first-child,
+.status-message[data-tone='error']:not(:has(.status-link:not([hidden]))) .status-body > span:first-child {
   display: -webkit-box;
   white-space: normal;
   text-overflow: clip;
@@ -1101,7 +941,7 @@ svg.lucide {
   background: var(--frost);
 }
 
-/* Option menu */
+/* Popup menus: option lists and the timer */
 
 .menu {
   position: absolute;
@@ -1152,6 +992,10 @@ svg.lucide {
   color: var(--porcelain);
 }
 
+.menu-item:disabled {
+  opacity: 0.4;
+}
+
 .menu-item svg.lucide {
   font-size: 16px;
 }
@@ -1160,20 +1004,8 @@ svg.lucide {
   color: var(--accent);
 }
 
-/* Popup content: favourites and timer */
-
 .menu[data-align='right'] {
   transform-origin: bottom right;
-}
-
-.menu[role='dialog'] {
-  width: 240px;
-}
-
-.menu-error {
-  margin: 6px 10px 6px;
-  font-size: 12px;
-  color: var(--signal);
 }
 
 .menu-title {
@@ -1207,86 +1039,6 @@ svg.lucide {
   height: 1px;
   margin: 4px 6px;
   background: var(--hairline);
-}
-
-.fav-list {
-  display: flex;
-  flex-direction: column;
-  max-height: 168px;
-  overflow-y: auto;
-}
-
-.fav-row {
-  display: flex;
-  align-items: center;
-  gap: 2px;
-}
-
-.fav-apply {
-  flex: 1;
-  grid-template-columns: 18px 1fr;
-  min-width: 0;
-  height: 44px;
-}
-
-.fav-text {
-  display: flex;
-  flex-direction: column;
-  gap: 1px;
-  min-width: 0;
-}
-
-.fav-name {
-  overflow: hidden;
-  font-size: 14px;
-  color: var(--porcelain);
-  white-space: nowrap;
-  text-overflow: ellipsis;
-}
-
-.fav-detail {
-  display: flex;
-  gap: 6px;
-  font-size: 12px;
-  color: var(--fog);
-}
-
-.fav-detail > span + span::before {
-  content: '·';
-  margin-right: 6px;
-}
-
-.menu-delete {
-  display: grid;
-  flex: none;
-  place-items: center;
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  font-size: 15px;
-  color: var(--fog);
-}
-
-.menu-delete:hover,
-.menu-delete:focus-visible {
-  outline: none;
-  color: var(--signal);
-  background: var(--wash);
-}
-
-.menu-save {
-  color: var(--porcelain);
-}
-
-.fav-form {
-  display: flex;
-  gap: 6px;
-  padding: 4px 4px 2px;
-}
-
-.fav-form .field {
-  flex: 1;
-  min-width: 0;
 }
 
 /* Signed-out card */
@@ -1460,49 +1212,12 @@ svg.lucide {
   color: var(--fog);
 }
 
-.row-value {
-  font-size: 15px;
-  font-weight: 600;
-  font-variant-numeric: tabular-nums;
-}
-
-.meter {
-  display: block;
-  height: 4px;
-  margin-top: 6px;
-  overflow: hidden;
-  border-radius: 2px;
-  background: var(--meter-track);
-}
-
-.meter > span {
-  display: block;
-  width: 0;
-  height: 100%;
-  border-radius: inherit;
-  background: var(--porcelain);
-  opacity: 0.75;
-  transition: width 0.5s var(--ease-out);
-}
-
-.meter[data-alert='true'] > span {
-  background: var(--signal);
-  opacity: 1;
-}
-
 @media (prefers-reduced-motion: reduce) {
   .pulse,
-  .sway-h,
-  .sway-v,
   .status-icon,
   .setpoint-value,
   .panel,
   .menu {
-    animation: none !important;
-  }
-
-  .dot {
-    opacity: 0.5;
     animation: none !important;
   }
 }

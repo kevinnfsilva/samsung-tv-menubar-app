@@ -1,4 +1,3 @@
-const SVG_NS = 'http://www.w3.org/2000/svg';
 const IS_MAC = window.ac.platform === 'darwin';
 const FOCUSABLE =
   "button:not(:disabled), input:not(:disabled), select:not(:disabled), textarea:not(:disabled), [tabindex]:not([tabindex='-1'])";
@@ -9,18 +8,8 @@ function byId(id) {
   return document.getElementById(id);
 }
 
-function random(min, max) {
-  return min + Math.random() * (max - min);
-}
-
 function clamp(value, min, max) {
   return Math.min(max, Math.max(min, value));
-}
-
-// Keeps 23 + 0.5 steps free of float noise such as 23.500000000000004.
-function roundTo(value, digits) {
-  const factor = 10 ** digits;
-  return Math.round(value * factor) / factor;
 }
 
 function iconElement(name) {
@@ -42,13 +31,6 @@ function el(tag, attrs = {}, ...children) {
     element.setAttribute(name, value === true ? '' : value);
   }
   element.append(...children.filter((child) => child != null && child !== false));
-  return element;
-}
-
-function svgEl(tag, attrs = {}, ...children) {
-  const element = document.createElementNS(SVG_NS, tag);
-  for (const [name, value] of Object.entries(attrs)) element.setAttribute(name, value);
-  element.append(...children);
   return element;
 }
 
@@ -83,15 +65,6 @@ function changed(key, value) {
   return true;
 }
 
-function formatNumber(value, digits = 0) {
-  return value.toLocaleString(intlLocale(), { minimumFractionDigits: digits, maximumFractionDigits: digits });
-}
-
-function formatTemp(value) {
-  if (value == null) return '--';
-  return Number.isInteger(value) ? String(value) : formatNumber(value, 1);
-}
-
 // 24 h or 12 h, as the language's locale writes it: "09:05" on a 24 h clock, "9:05 AM" on a 12 h one.
 function formatClock(epochMs) {
   const twelveHour = new Intl.DateTimeFormat(intlLocale(), { hour: 'numeric' }).resolvedOptions().hour12;
@@ -106,9 +79,4 @@ function formatTimeOfDay(hora) {
 
 function formatList(items) {
   return new Intl.ListFormat(intlLocale(), { style: 'long', type: 'conjunction' }).format(items);
-}
-
-function dayKey(date) {
-  const pad = (number) => String(number).padStart(2, '0');
-  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
 }

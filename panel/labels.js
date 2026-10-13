@@ -1,82 +1,107 @@
-// Icons and value lists. Every text comes from the dictionary (../locales), so the functions below look it up when
-// they are called and follow a language change.
+// Icons, value lists and the names the panel shows for them. Every text comes from the dictionary (../locales), so the
+// functions below look it up when they are called and follow a language change.
 
-const MENU_ICONS = {
-  modo: { cool: 'snowflake', dry: 'droplets', wind: 'fan', auto: 'sparkles', heat: 'flame' },
-  vento: { auto: 'sparkles', low: 'signal-low', medium: 'signal-medium', high: 'signal-high', turbo: 'signal' },
-  oscilar: { fixed: 'minus', vertical: 'move-vertical', horizontal: 'move-horizontal', all: 'move' },
-};
+// Icons of the option menus, by the key they set on the TV.
+const MENU_ICONS = { entrada: 'cable', imagem: 'sun-medium', som: 'audio-lines' };
 
-// Same lists ac.mjs falls back to when the unit reports nothing.
-const FALLBACK_LIMITS = {
-  temp: { min: 16, max: 30, passo: 1 },
-  modo: ['cool', 'dry', 'wind', 'auto'],
-  vento: ['auto', 'low', 'medium', 'high', 'turbo'],
-  oscilar: ['fixed', 'vertical', 'horizontal', 'all'],
-  extra: ['off', 'windFree', 'windFreeSleep', 'sleep', 'quiet', 'speed'],
-  filtroAlerta: [180, 300, 500, 700],
-};
-
-const EXTRA_BY_FLAGS = {
-  'false,false': 'off',
-  'true,false': 'windFree',
-  'false,true': 'sleep',
-  'true,true': 'windFreeSleep',
-};
-
-const EXTRA_MODE_VALUES = ['off', 'quiet', 'speed'];
-
-const ON_HOURS_VALUES = [0, 4, 8, 12];
-
-const UNCONFIRMED_KEYS = [
-  'ligado',
-  'temp',
-  'modo',
-  'vento',
-  'extra',
-  'oscilar',
-  'display',
-  'bipe',
-  'autoclean',
-  'filtroAlerta',
-  'tropical',
-  'limpeza',
-  'diagnostico',
+// The apps the remote launches: the Samsung store ids, kept in one place so they are easy to fix.
+const TV_APPS = [
+  { id: '3201907018807', nome: 'Netflix' },
+  { id: '111299001912', nome: 'YouTube' },
+  { id: '3201910019365', nome: 'Prime Video' },
+  { id: '3201901017640', nome: 'Disney+' },
 ];
 
-const FILTER_NOTE_STATUSES = ['wash', 'replace'];
+// Words that name the app running on the TV when device.app only carries an id such as "9Ur5IzDKqV.TizenYouTube".
+const APP_WORDS = [
+  { word: 'YouTube', nome: 'YouTube' },
+  { word: 'Netflix', nome: 'Netflix' },
+  { word: 'Prime', nome: 'Prime Video' },
+  { word: 'Disney', nome: 'Disney+' },
+  { word: 'Globoplay', nome: 'Globoplay' },
+  { word: 'Spotify', nome: 'Spotify' },
+  { word: 'tvplus', nome: 'Samsung TV Plus' },
+];
 
 const ERROR_STATUS = {
   rede: { icon: 'wifi-off' },
-  'sem-ar': { icon: 'air-vent' },
+  'sem-tv': { icon: 'tv' },
   aparelho: { icon: 'search-x', pick: true },
   tempo: { icon: 'hourglass' },
   desconhecido: { icon: 'cloud-off' },
 };
 
+const UNCONFIRMED_KEYS = ['ligado', 'volume', 'mudo', 'entrada', 'imagem', 'som'];
+
 const TIMER_MINUTES = [30, 60, 120, 240, 480];
 
 const SCHEDULE_ACTION_VALUES = ['liga', 'desliga'];
 
-function optionFor(key, value) {
-  if (!Object.hasOwn(MENU_ICONS[key], value)) return { label: String(value), short: String(value), icon: 'circle' };
-  return {
-    label: t(`option.${key}.${value}.label`),
-    short: t(`option.${key}.${value}.short`),
-    icon: MENU_ICONS[key][value],
-  };
+const ON_HOURS_VALUES = [0, 4, 8, 12];
+
+function textOf(value) {
+  return typeof value === 'string' && value !== '' ? value : null;
 }
 
-function extraModes() {
-  return EXTRA_MODE_VALUES.map((value) => ({ value, label: t(`extra.${value}`) }));
+// The lists the TV reports; anything else in them is dropped rather than shown.
+function listOf(value) {
+  return Array.isArray(value) ? value.filter((item) => textOf(item) !== null) : [];
 }
 
-function onHoursOptions() {
-  return ON_HOURS_VALUES.map((value) => ({ value, label: value === 0 ? t('prefs.never') : t('fmt.hours', { n: value }) }));
+function inputsOf(device) {
+  if (!Array.isArray(device?.entradas)) return [];
+  return device.entradas
+    .filter((item) => textOf(item?.id) !== null)
+    .map((item) => ({ id: item.id, nome: textOf(item.nome) ?? item.id }));
 }
 
-function scheduleActions() {
-  return SCHEDULE_ACTION_VALUES.map((value) => ({ value, label: t(value === 'liga' ? 'schedules.actionOn' : 'schedules.actionOff') }));
+// The input's name, or its id when the TV does not name it.
+function inputName(device) {
+  const current = textOf(device?.entrada);
+  if (current === null) return null;
+  return inputsOf(device).find((input) => input.id === current)?.nome ?? current;
+}
+
+// The friendly name of the running app, when device.app names one.
+function appName(device) {
+  const app = textOf(device?.app);
+  if (app === null) return null;
+  const known = TV_APPS.find((item) => item.id === app);
+  if (known) return known.nome;
+  const lower = app.toLowerCase();
+  const named = APP_WORDS.find(({ word }) => lower.includes(word.toLowerCase()))?.nome;
+  if (named) return named;
+  // Live TV puts the channel's name there, with spaces; anything else is an id nobody should have to read.
+  return app.includes(' ') ? app : null;
+}
+
+// The first line on the TV's screen: the app when one is known, else the input.
+function screenTitle(device) {
+  return appName(device) ?? inputName(device);
+}
+
+// The options of an option menu: the inputs (by id), or the picture and sound modes (by name).
+function menuOptions(key, device) {
+  if (key === 'entrada') {
+    return inputsOf(device).map(({ id, nome }) => ({ value: id, label: nome, selected: id === device?.entrada }));
+  }
+  const current = textOf(key === 'imagem' ? device?.imagem : device?.som);
+  const names = listOf(key === 'imagem' ? device?.imagens : device?.sons);
+  return names.map((value) => ({ value, label: value, selected: value === current }));
+}
+
+// What a menu cell shows: the current input, picture or sound mode.
+function currentOf(key, device) {
+  if (key === 'entrada') return inputName(device);
+  return textOf(key === 'imagem' ? device?.imagem : device?.som);
+}
+
+function formatVolume(value) {
+  return value == null ? '--' : String(value);
+}
+
+function unconfirmedName(key) {
+  return UNCONFIRMED_KEYS.includes(key) ? t(`unconfirmed.${key}`) : key;
 }
 
 function timerOptions(acao) {
@@ -87,22 +112,14 @@ function timerOptions(acao) {
   });
 }
 
+function scheduleActions() {
+  return SCHEDULE_ACTION_VALUES.map((value) => ({ value, label: t(value === 'liga' ? 'schedules.actionOn' : 'schedules.actionOff') }));
+}
+
+function onHoursOptions() {
+  return ON_HOURS_VALUES.map((value) => ({ value, label: value === 0 ? t('prefs.never') : t('fmt.hours', { n: value }) }));
+}
+
 function weekdayName(day, form) {
   return t(`weekday.${day}.${form}`);
-}
-
-function unconfirmedName(key) {
-  return UNCONFIRMED_KEYS.includes(key) ? t(`unconfirmed.${key}`) : key;
-}
-
-function isWindFree(extra) {
-  return extra === 'windFree' || extra === 'windFreeSleep';
-}
-
-function isSleep(extra) {
-  return extra === 'sleep' || extra === 'windFreeSleep';
-}
-
-function extraFor(windFree, sleep) {
-  return EXTRA_BY_FLAGS[`${windFree},${sleep}`];
 }

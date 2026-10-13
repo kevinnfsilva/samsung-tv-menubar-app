@@ -9,8 +9,19 @@ function render() {
   renderUpdate();
   renderTrayIcon();
   const device = view?.device;
-  const popupInputs = [settings.favoritos, settings.timer, Boolean(device), device?.ligado, device?.modo, device?.vento];
-  if (changed('popup', [...popupInputs, device?.oscilar])) refreshPopup();
+  const popupInputs = [
+    settings.timer,
+    Boolean(device),
+    device?.ligado,
+    device?.mudo,
+    device?.entrada,
+    device?.entradas,
+    device?.imagem,
+    device?.imagens,
+    device?.som,
+    device?.sons,
+  ];
+  if (changed('popup', popupInputs)) refreshPopup();
 }
 
 panel.addEventListener('animationend', (event) => {
@@ -37,7 +48,6 @@ window.ac.onLocale((code) => {
   signatures.clear();
   applyPageStack();
   render();
-  refreshHistory();
 });
 
 window.ac.onTheme((dark) => {
@@ -48,7 +58,7 @@ window.ac.onTheme((dark) => {
 
 window.ac.onState((next) => {
   view = next;
-  pendingTemp = null;
+  pendingVolume = null;
   render();
 });
 
@@ -70,14 +80,12 @@ if (IS_MAC) {
   byId('autostart-title').dataset.i18n = 'autostart.mac';
   byId('autostart').dataset.i18nAriaLabel = 'autostart.mac';
   byId('row-dock').hidden = false;
-  // Only the macOS menu bar icon can show the room temperature; the Windows tray icon is too small for it.
-  byId('row-room-icon').hidden = false;
+  // Only the macOS menu bar icon can show the volume next to the TV glyph; the Windows tray icon always does.
+  byId('row-volume-icon').hidden = false;
   applyStaticTexts();
 }
 
 lucide.createIcons();
-buildStreaks();
-buildDrift();
 
 window.ac.getState().then((initial) => {
   darkTaskbar = initial.darkTaskbar;

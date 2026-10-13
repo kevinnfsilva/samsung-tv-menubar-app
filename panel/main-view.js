@@ -1,11 +1,12 @@
-const tempInput = byId('temp');
+const volumeInput = byId('volume-input');
 
 // Target of the last step while its command is still in flight, so fast key repeats keep adding up.
-let pendingTemp = null;
+let pendingVolume = null;
 let lastLogin = 'ok';
 let notice = null;
 let noticeTimer = null;
 const NOTICE_MS = 4000;
+const VOLUME_MAX = 100;
 
 function send(key, value) {
   window.ac.set(key, value);
@@ -29,107 +30,83 @@ function showNotice(key) {
   renderMain();
 }
 
-// The main process resolves null (false for applyFavorite) when it refused a request, undefined when it has no answer.
+// The main process resolves null when it refused a request, undefined when it has no answer.
 async function refused(call, noticeKey) {
   const result = await call;
-  if (result === null || result === false) showNotice(noticeKey);
+  if (result === null) showNotice(noticeKey);
   return result;
 }
 
-function toggledExtra(device, flag) {
-  const flags = { windFree: isWindFree(device.extra), sleep: isSleep(device.extra) };
-  flags[flag] = !flags[flag];
-  if (flags.windFree && flags.sleep && !limitsOf(device).extra.includes('windFreeSleep')) {
-    // The unit has no combined mode, so the flag just switched on replaces the other one.
-    flags[flag === 'windFree' ? 'sleep' : 'windFree'] = false;
-  }
-  return extraFor(flags.windFree, flags.sleep);
-}
+/* Volume */
 
-/* Temperature */
-
-function showSetpoint(value) {
-  const element = byId('setpoint');
+function showVolume(value) {
+  const element = byId('volume');
   const previous = element.dataset.value ? Number(element.dataset.value) : Number.NaN;
   element.dataset.value = value ?? '';
-  if (element.textContent === formatTemp(value)) return;
-  element.textContent = formatTemp(value);
+  if (element.textContent === formatVolume(value)) return;
+  element.textContent = formatVolume(value);
   if (value == null || Number.isNaN(previous)) return;
   element.classList.remove('roll-up', 'roll-down');
   void element.offsetWidth;
   element.classList.add(value > previous ? 'roll-up' : 'roll-down');
 }
 
-function setSliderPosition(value, { min, max }) {
-  tempInput.value = value ?? min;
-  tempInput.parentElement.style.setProperty('--pct', value == null ? 0 : clamp((value - min) / (max - min), 0, 1));
+function setSliderPosition(value) {
+  volumeInput.value = value ?? 0;
+  volumeInput.parentElement.style.setProperty('--pct', value == null ? 0 : clamp(value / VOLUME_MAX, 0, 1));
 }
 
-function stepTemperature(direction) {
+// One step of the volume buttons and of the arrow keys; each step builds on the last one still in flight.
+function stepVolume(direction) {
   const device = view?.device;
-  if (!usable() || device.temp == null) return;
-  const range = limitsOf(device).temp;
-  const base = pendingTemp ?? device.temp;
-  const next = clamp(roundTo(base + direction * range.passo, 2), range.min, range.max);
+  if (!usable() || device.volume == null) return;
+  const base = pendingVolume ?? device.volume;
+  const next = clamp(base + direction, 0, VOLUME_MAX);
   if (next === base) return;
-  pendingTemp = next;
-  showSetpoint(next);
-  setSliderPosition(next, range);
-  send('temp', next);
+  pendingVolume = next;
+  showVolume(next);
+  setSliderPosition(next);
+  send('volume', next);
+}
+
+function runChannel(action) {
+  if (usable()) window.ac.run(action);
 }
 
 /* Rendering */
 
-function setReading(id, text) {
-  const reading = byId(id);
-  reading.hidden = text == null;
-  reading.querySelector('strong').textContent = text ?? '--';
-}
-
-function renderReadings(device) {
-  setReading('reading-room', device?.ambiente == null ? null : `${formatTemp(device.ambiente)}°`);
-  setReading('reading-humidity', device?.umidade == null ? null : `${Math.round(device.umidade)}%`);
-}
-
-function renderCells(device, limits) {
-  for (const key of ['modo', 'vento', 'oscilar']) {
-    const value = device[key] == null ? '--' : optionFor(key, device[key]).short;
-    document.querySelector(`[data-value-for='${key}']`).textContent = value;
+// The option menus' cells show the current value and open a menu of the TV's own list; an empty list leaves the cell off.
+// A long name is cut in its cell, so the full name is also the cell's tooltip.
+function renderCells(device) {
+  for (const key of ['entrada', 'imagem', 'som']) {
+    const cell = document.querySelector(`[data-menu='${key}']`);
+    const current = currentOf(key, device);
+    cell.disabled = menuOptions(key, device).length === 0;
+    cell.title = current ?? '';
+    document.querySelector(`[data-value-for='${key}']`).textContent = current ?? '--';
   }
-  setIcon(document.querySelector("[data-icon-for='modo']"), optionFor('modo', device.modo).icon);
-  setIcon(document.querySelector("[data-icon-for='oscilar']"), optionFor('oscilar', device.oscilar).icon);
-  const sleeping = isSleep(device.extra);
-  byId('sleep').setAttribute('aria-checked', String(sleeping));
-  byId('sleep').hidden = !limits.extra.some(isSleep);
-  document.querySelector("[data-value-for='sono']").textContent = t(sleeping ? 'main.sleepOn' : 'main.sleepOff');
 }
 
+// Draws the whole main view; with no TV yet (signed out, still loading) every value shows as "--".
 function renderDevice(device) {
-  const limits = limitsOf(device);
-  const { min, max } = limits.temp;
-  Object.assign(panel.dataset, {
-    power: device.ligado ? 'on' : 'off',
-    mode: device.modo,
-    fan: device.vento,
-    swing: device.oscilar,
-    windfree: String(isWindFree(device.extra)),
-    display: device.display,
-  });
-  renderReadings(device);
-  byId('unit-display').textContent = formatTemp(device.temp);
-  byId('power').setAttribute('aria-label', t(device.ligado ? 'main.powerOff' : 'main.powerOn'));
-  byId('windfree').setAttribute('aria-checked', String(isWindFree(device.extra)));
-  byId('windfree').hidden = !limits.extra.some(isWindFree);
-  Object.assign(tempInput, { min, max, step: limits.temp.passo });
-  byId('scale-min').textContent = `${formatTemp(min)}°`;
-  byId('scale-max').textContent = `${formatTemp(max)}°`;
-  byId('temp-down').disabled = device.temp == null || device.temp <= min;
-  byId('temp-up').disabled = device.temp == null || device.temp >= max;
-  if (!tempInput.parentElement.classList.contains('dragging')) {
-    showSetpoint(device.temp);
-    setSliderPosition(device.temp, limits.temp);
+  const volume = Number.isInteger(device?.volume) ? device.volume : null;
+  const muted = device?.mudo === true;
+  panel.dataset.power = device?.ligado ? 'on' : 'off';
+  panel.dataset.muted = String(muted);
+  byId('tv-name').textContent = device?.nome || t('device.defaultName');
+  byId('power').setAttribute('aria-label', t(device?.ligado ? 'main.powerOff' : 'main.powerOn'));
+  byId('mute').setAttribute('aria-checked', String(muted));
+  volumeInput.disabled = volume == null;
+  byId('volume-down').disabled = volume == null || volume <= 0;
+  byId('volume-up').disabled = volume == null || volume >= VOLUME_MAX;
+  if (!volumeInput.parentElement.classList.contains('dragging')) {
+    showVolume(volume);
+    setSliderPosition(volume);
   }
-  renderCells(device, limits);
+  byId('channel').textContent = device?.canal == null ? '--' : String(device.canal);
+  renderCells(device);
+  byId('tv-app').textContent = screenTitle(device) ?? '';
+  byId('tv-mode').textContent = textOf(device?.imagem) ?? '';
 }
 
 // What a failed run looks like to the person, by reason: the footer and the sign-in card say the same thing.
@@ -147,16 +124,15 @@ function statusFor(current) {
   const device = current?.device;
   if (device?.online === false) return { tone: 'error', icon: 'unplug', text: t('status.offline'), retry: true };
   if (error?.kind === 'unconfirmed') {
-    const names = formatList(error.keys.map(unconfirmedName));
-    return { tone: 'error', icon: 'triangle-alert', text: t('status.unconfirmed', { names }) };
+    const text = t('status.unconfirmed', { names: formatList(error.keys.map(unconfirmedName)) });
+    return { tone: 'error', icon: 'triangle-alert', text, detail: text };
   }
   if (notice) return { tone: 'error', icon: 'triangle-alert', text: t(notice) };
   if (!device) return { tone: 'busy', icon: 'loader-circle', text: t('status.connecting') };
   if (current.syncing) return { tone: 'busy', icon: 'loader-circle', text: t('status.syncing') };
-  if (current.held?.length > 0) return { tone: 'quiet', icon: 'clock', text: t('status.held') };
   if (settings.timer) {
     const text = timerText(settings.timer);
-    // A timer of another unit has a longer line, which the footer may cut: the full text stays in the tooltip.
+    // A timer of another TV has a longer line, which the footer may cut: the full text stays in the tooltip.
     return { tone: 'quiet', icon: 'clock', text, detail: otherUnitName(settings.timer.aparelho) ? text : undefined };
   }
   return { tone: 'ok', icon: 'shield-check', text: t('status.connected') };
@@ -203,7 +179,7 @@ function renderLogin(login) {
   (login === 'needed' ? byId('login') : byId('cancel-login')).focus();
 }
 
-// Favourites and timer need a reachable unit, and an error leaves their room to the message.
+// The remote and the timer need a reachable TV, and an error leaves their room to the message.
 function renderFooterTools(status) {
   const available = usable() && status.tone !== 'error';
   for (const tool of document.querySelectorAll('.tool')) {
@@ -215,15 +191,14 @@ function renderFooterTools(status) {
 }
 
 function renderMain() {
-  const device = view?.device;
+  const device = view?.device ?? null;
   const login = loginState();
   const status = statusFor(view);
   panel.dataset.loading = String(!device);
   panel.dataset.login = login;
   panel.dataset.online = String(device?.online !== false);
-  if (device) renderDevice(device);
-  else renderReadings(null);
-  // Behind the sign-in card the unit stays idle, whatever the last reading said.
+  renderDevice(device);
+  // Behind the sign-in card the TV stays idle, whatever the last reading said.
   if (login !== 'ok') panel.dataset.power = 'off';
   renderLogin(login);
   renderStatus(status);
@@ -233,22 +208,23 @@ function renderMain() {
 /* Wiring */
 
 byId('power').addEventListener('click', withDevice((device) => send('ligado', !device.ligado)));
-byId('windfree').addEventListener('click', withDevice((device) => send('extra', toggledExtra(device, 'windFree'))));
-byId('sleep').addEventListener('click', withDevice((device) => send('extra', toggledExtra(device, 'sleep'))));
-byId('temp-down').addEventListener('click', () => stepTemperature(-1));
-byId('temp-up').addEventListener('click', () => stepTemperature(1));
+byId('mute').addEventListener('click', withDevice((device) => send('mudo', !device.mudo)));
+byId('volume-down').addEventListener('click', () => stepVolume(-1));
+byId('volume-up').addEventListener('click', () => stepVolume(1));
+byId('channel-down').addEventListener('click', () => runChannel('canal-'));
+byId('channel-up').addEventListener('click', () => runChannel('canal+'));
 
-tempInput.addEventListener('input', () => {
-  const value = Number(tempInput.value);
-  tempInput.parentElement.classList.add('dragging');
-  showSetpoint(value);
-  setSliderPosition(value, limitsOf(view?.device).temp);
+volumeInput.addEventListener('input', () => {
+  const value = Number(volumeInput.value);
+  volumeInput.parentElement.classList.add('dragging');
+  showVolume(value);
+  setSliderPosition(value);
 });
 
-tempInput.addEventListener('change', () => {
-  tempInput.parentElement.classList.remove('dragging');
-  pendingTemp = Number(tempInput.value);
-  send('temp', pendingTemp);
+volumeInput.addEventListener('change', () => {
+  volumeInput.parentElement.classList.remove('dragging');
+  pendingVolume = Number(volumeInput.value);
+  send('volume', pendingVolume);
 });
 
 byId('retry').addEventListener('click', () => window.ac.refresh());

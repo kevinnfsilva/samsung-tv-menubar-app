@@ -27,8 +27,12 @@ function deviceRow(device) {
 function renderDevicePage() {
   const devices = view?.devices;
   const list = byId('devices-list');
-  byId('devices-loading').hidden = devices != null;
-  byId('devices-empty').hidden = devices?.length !== 0;
+  // A list that failed to load says why, instead of spinning for ever.
+  const failed = devices == null && view?.error?.kind === 'failed';
+  const note = byId('devices-empty');
+  byId('devices-loading').hidden = devices != null || failed;
+  note.hidden = !failed && devices?.length !== 0;
+  note.textContent = failed ? t(`status.error.${view.error.reason}`) : t('devices.empty');
   list.hidden = !devices?.length;
   if (!devices?.length) return;
   const activeId = devices.find((device) => device.ativo)?.id;

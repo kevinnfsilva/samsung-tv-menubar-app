@@ -1,4 +1,4 @@
-/* Settings pages, shared form controls and charts. Core layout and tokens live in styles.css. */
+/* Settings pages, the Controle page and shared form controls. Core layout and tokens live in styles.css. */
 
 /* Page stack */
 
@@ -114,11 +114,6 @@
   width: 100%;
 }
 
-/* Lines up with the text column of the rows above, which start after the 20px icon. */
-#filter-confirm {
-  padding-left: 46px;
-}
-
 .row-unit {
   color: var(--porcelain);
 }
@@ -183,10 +178,6 @@
 
 .btn-primary:hover:not(:disabled) {
   background: color-mix(in srgb, var(--tint) 84%, var(--hover-mix));
-}
-
-.btn-danger {
-  color: var(--signal);
 }
 
 .btn-small {
@@ -280,39 +271,6 @@
   padding: 0;
 }
 
-.stepper {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.stepper-button {
-  display: grid;
-  place-items: center;
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  font-size: 15px;
-  background: var(--field);
-  box-shadow: inset 0 0 0 1px var(--wash-strong);
-}
-
-.stepper-button:hover:not(:disabled) {
-  background: var(--wash);
-}
-
-.stepper-button:disabled {
-  opacity: 0.35;
-}
-
-.stepper-value {
-  min-width: 28px;
-  font-size: 15px;
-  font-weight: 600;
-  text-align: center;
-  font-variant-numeric: tabular-nums;
-}
-
 .keys {
   padding: 3px 8px;
   border-radius: 8px;
@@ -322,22 +280,6 @@
   color: var(--porcelain);
   background: var(--field);
   box-shadow: inset 0 0 0 1px var(--hairline);
-}
-
-.tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  margin-top: 4px;
-}
-
-.tag {
-  padding: 2px 8px;
-  border-radius: 999px;
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--signal);
-  background: color-mix(in srgb, var(--signal) 12%, transparent);
 }
 
 /* Page furniture */
@@ -365,70 +307,10 @@
   color: var(--fog);
 }
 
-.page-warning {
-  display: grid;
-  grid-template-columns: 18px 1fr;
-  gap: 10px;
-  margin: 0;
-  padding: 12px 14px;
-  border-radius: 14px;
-  font-size: 13px;
-  line-height: 1.4;
-  color: var(--warning-text);
-  background: color-mix(in srgb, var(--amber) 8%, transparent);
-  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--amber) 22%, transparent);
-}
-
-.page-warning svg.lucide {
-  margin-top: 1px;
-  font-size: 16px;
-  color: var(--amber);
-}
-
 .section-title {
   margin: 6px 4px -4px;
   font-size: 12px;
   font-weight: 500;
-  color: var(--fog);
-}
-
-.page-stack {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.empty-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  padding: 44px 24px;
-  text-align: center;
-}
-
-.empty-badge {
-  display: grid;
-  place-items: center;
-  width: 46px;
-  height: 46px;
-  margin-bottom: 4px;
-  border-radius: 50%;
-  font-size: 20px;
-  color: var(--fog);
-  background: var(--slate);
-  box-shadow: inset 0 0 0 1px var(--hairline);
-}
-
-.empty-title {
-  font-size: 15px;
-  font-weight: 500;
-}
-
-.empty-text {
-  margin: 0;
-  font-size: 13px;
-  line-height: 1.45;
   color: var(--fog);
 }
 
@@ -453,150 +335,151 @@
   opacity: 0.55;
 }
 
-/* Consumption */
+/* Controle: a d-pad, Back / Home / Menu, playback and the apps */
 
-.stats {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
+.page-remote {
+  gap: 14px;
 }
 
-.stat {
+.dpad {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  width: 200px;
+  height: 200px;
+  margin: 4px auto 0;
+  padding: 8px;
+  border-radius: 50%;
+  background: var(--slate);
+  box-shadow: inset 0 0 0 1px var(--hairline);
+}
+
+.dpad > span {
+  display: block;
+}
+
+.dpad-key,
+.dpad-ok {
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  font-size: 20px;
+  color: var(--porcelain);
+  background: var(--slate-raised);
+  box-shadow: inset 0 0 0 1px var(--wash-strong);
+  transition:
+    background 0.15s,
+    transform 0.12s;
+}
+
+.dpad-key:hover:not(:disabled),
+.dpad-ok:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--slate-raised) 82%, var(--hover-mix));
+}
+
+.dpad-key:active:not(:disabled),
+.dpad-ok:active:not(:disabled) {
+  transform: scale(0.94);
+}
+
+.dpad-ok {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--on-tint);
+  background: var(--tint);
+  box-shadow: none;
+}
+
+.dpad-ok:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--tint) 84%, var(--hover-mix));
+}
+
+.remote-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.remote-key {
   display: flex;
   flex-direction: column;
+  align-items: center;
+  justify-content: center;
   gap: 4px;
-  padding: 12px 16px;
+  height: 56px;
+  border-radius: 14px;
+  font-size: 12px;
+  color: var(--porcelain);
+  background: var(--slate);
+  box-shadow: inset 0 0 0 1px var(--hairline);
+  transition: background 0.2s;
 }
 
-.stat + .stat {
+.remote-key svg.lucide {
+  font-size: 18px;
+}
+
+.remote-key:hover:not(:disabled) {
+  background: var(--slate-raised);
+}
+
+.playback {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  overflow: hidden;
+  border-radius: 14px;
+  background: var(--slate);
+  box-shadow: inset 0 0 0 1px var(--hairline);
+}
+
+.playback-key {
+  display: grid;
+  place-items: center;
+  height: 46px;
+  font-size: 17px;
+  color: var(--porcelain);
+  transition: background 0.2s;
+}
+
+.playback-key + .playback-key {
   box-shadow: inset 1px 0 0 var(--hairline);
 }
 
-.stat-label {
-  font-size: 12px;
-  color: var(--fog);
+.playback-key:hover {
+  background: var(--wash-cell);
 }
 
-.stat-value {
-  font-size: 26px;
-  font-weight: 300;
-  letter-spacing: -0.02em;
-}
-
-.stat-value small {
-  margin-left: 4px;
-  font-size: 13px;
-  font-weight: 400;
-  letter-spacing: 0;
-  color: var(--fog);
-}
-
-.chart-card {
-  padding: 12px 14px 8px;
-}
-
-.chart-head {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
+.apps {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: 8px;
-  min-height: 18px;
 }
 
-.chart-title {
-  margin: 0;
-  font-size: 13px;
+.app-key {
+  height: 46px;
+  padding: 0 12px;
+  border-radius: 14px;
+  font-size: 14px;
   font-weight: 500;
-}
-
-.chart-readout {
-  display: flex;
-  gap: 8px;
-  font-size: 12px;
-  color: var(--fog);
-  font-variant-numeric: tabular-nums;
-}
-
-.chart-readout strong {
-  font-weight: 600;
   color: var(--porcelain);
+  background: var(--slate);
+  box-shadow: inset 0 0 0 1px var(--hairline);
+  transition: background 0.2s;
 }
 
-.chart {
-  display: block;
-  width: 100%;
-  height: auto;
-  margin-top: 4px;
-  overflow: visible;
+.app-key:hover:not(:disabled) {
+  background: var(--slate-raised);
 }
 
-.chart-grid {
-  stroke: var(--chart-grid);
-  stroke-width: 1;
+/* Without a reachable TV the remote shows, but does nothing */
+.page-remote[data-usable='false'] .remote-control {
+  opacity: 0.4;
+  pointer-events: none;
 }
 
-.chart-label {
-  font-size: 10px;
-  fill: var(--fog);
-  font-variant-numeric: tabular-nums;
-}
-
-.chart-label.is-today {
-  fill: var(--porcelain);
-}
-
-.chart-bar {
-  fill: var(--chart-bar);
-}
-
-.chart-bar.is-today {
-  fill: var(--tint);
-}
-
-.chart-zero {
-  fill: var(--chart-bar);
-  opacity: 0.6;
-}
-
-.chart-slot:hover .chart-bar:not(.is-today) {
-  fill: var(--fog);
-}
-
-.chart-hit {
-  fill: transparent;
-}
-
-.chart-line {
-  fill: none;
-  stroke: var(--tint);
-  stroke-width: 2;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
-
-.chart-area {
-  fill: var(--tint);
-  opacity: 0.1;
-}
-
-.chart-point {
-  fill: var(--tint);
-}
-
-.chart-dot {
-  fill: var(--tint);
-  stroke: var(--slate);
-  stroke-width: 2;
-}
-
-.chart-guide {
-  stroke: var(--fog);
-  stroke-width: 1;
-}
-
-.chart-empty {
-  margin: 10px 0 14px;
-  font-size: 13px;
-  color: var(--fog);
+.page-remote[data-usable='false'] .apps .app-key {
+  opacity: 0.4;
+  pointer-events: none;
 }
 
 @media (prefers-reduced-motion: reduce) {

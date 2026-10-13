@@ -1,4 +1,4 @@
-/* One floating popup shared by the option menus, favourites and timer. */
+/* One floating popup shared by the option menus and the timer. */
 
 const popup = byId('menu');
 let popupOwner = null;
@@ -88,17 +88,16 @@ document.addEventListener('click', (event) => {
   if (!path.includes(popup) && !path.includes(popupOwner)) closePopup();
 });
 
-/* Option menus: Modo, Vento, Direção */
+/* Option menus: Entrada, Imagem and Som, each a list the TV reports */
 
-function optionItem(key, value, selected) {
-  const option = optionFor(key, value);
-  const attrs = { type: 'button', class: 'menu-item', role: 'menuitemradio', 'aria-checked': String(selected) };
+function optionItem(key, option) {
+  const attrs = { type: 'button', class: 'menu-item', role: 'menuitemradio', 'aria-checked': String(option.selected) };
   const item = el('button', attrs);
-  const check = el('span', { class: 'menu-check' }, selected ? iconElement('check') : null);
-  item.append(iconElement(option.icon), el('span', {}, option.label), check);
+  const check = el('span', { class: 'menu-check' }, option.selected ? iconElement('check') : null);
+  item.append(iconElement(MENU_ICONS[key]), el('span', {}, option.label), check);
   item.addEventListener('click', () => {
     closePopup({ restoreFocus: true });
-    window.ac.set(key, value);
+    window.ac.set(key, option.value);
   });
   return item;
 }
@@ -108,10 +107,7 @@ function openOptionMenu(cell) {
   togglePopup(cell, {
     role: 'menu',
     label: () => cell.querySelector('.cell-label').textContent,
-    build: () => {
-      const device = view?.device;
-      return limitsOf(device)[key].map((value) => optionItem(key, value, value === device?.[key]));
-    },
+    build: () => menuOptions(key, view?.device).map((option) => optionItem(key, option)),
     focus: () => popup.querySelector("[aria-checked='true']") ?? popup.firstElementChild,
   });
 }

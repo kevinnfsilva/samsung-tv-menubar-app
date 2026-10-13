@@ -4,21 +4,22 @@ const os = require('node:os');
 const path = require('node:path');
 
 const IS_MAC = process.platform === 'darwin';
-const AC_SCRIPT = path.join(__dirname, 'tv.mjs');
+const TV_SCRIPT = path.join(__dirname, 'tv.mjs');
 const FLUSH_DELAY_MS = 600;
+const PRESS_SETTLE_MS = 2500;
 const RUN_TIMEOUT_MS = 120_000;
 // The CLI itself waits up to ten minutes for the browser sign-in; the rest of the run gets the usual limit on top.
 const LOGIN_TIMEOUT_MS = 10 * 60_000 + RUN_TIMEOUT_MS;
-const CLIMATE_KEYS = new Set(['temp', 'modo', 'vento', 'extra', 'oscilar']);
-const ON_OFF_KEYS = new Set(['display', 'bipe', 'autoclean', 'limpeza', 'diagnostico']);
-const SETTABLE_KEYS = new Set(['ligado', ...CLIMATE_KEYS, ...ON_OFF_KEYS, 'filtroAlerta', 'tropical']);
-const ONE_SHOT_ACTIONS = new Set(['zera-filtro']);
-const FAILURE_REASONS = new Set(['login', 'rede', 'sem-ar', 'aparelho', 'desconhecido']);
+const SETTABLE_KEYS = new Set(['ligado', 'volume', 'mudo', 'entrada', 'imagem', 'som']);
+// One-shots are never confirmed. The ones in ARG_ONE_SHOT_ACTIONS also take an argument: the channel, the key or the app id.
+const ONE_SHOT_ACTIONS = new Set(['vol+', 'vol-', 'canal+', 'canal-', 'canal', 'tecla', 'play', 'pause', 'stop', 'avancar', 'voltar', 'app']);
+const ARG_ONE_SHOT_ACTIONS = new Set(['canal', 'tecla', 'app']);
+const FAILURE_REASONS = new Set(['login', 'rede', 'sem-tv', 'aparelho', 'desconhecido']);
 const APPLY_FAILURE_REASONS = new Set(['login', 'rede', 'aparelho', 'tempo']);
 // Reasons that prove the sign-in itself worked: the API accepted the login and only the next step failed.
-const SIGNED_IN_REASONS = new Set(['sem-ar', 'aparelho']);
+const SIGNED_IN_REASONS = new Set(['sem-tv', 'aparelho']);
 const TIMEOUT_MESSAGE = 'Sem resposta do SmartThings.';
-const CRASH_MESSAGE = 'O processo do ar-condicionado terminou de forma inesperada.';
+const CRASH_MESSAGE = 'O processo da TV terminou de forma inesperada.';
 
 const RunKind = Object.freeze({
   Idle: 'idle',
@@ -36,24 +37,23 @@ const KillReason = Object.freeze({
   Dispose: 'dispose',
 });
 
-function arTokens(changes) {
+// Power on goes first and power off last, so the settings are sent while the unit is still on.
+function tvTokens(changes) {
   const tokens = changes.get('ligado') === true ? ['liga'] : [];
   for (const [key, value] of changes) {
-    if (key !== 'ligado') tokens.push(key, String(value));
+    if (key === 'ligado') continue;
+    if (key === 'mudo') tokens.push('mudo', value ? 'on' : 'off');
+    else tokens.push(key, String(value));
   }
   if (changes.get('ligado') === false) tokens.push('desliga');
   return tokens;
-}
-
-function normalized(key, value) {
-  return ON_OFF_KEYS.has(key) && typeof value === 'boolean' ? (value ? 'on' : 'off') : value;
 }
 
 function lastLine(text) {
   return text.trim().split('\n').pop();
 }
 
-// ac.mjs ends a failed run with {"erro","mensagem"} as the last line of stderr.
+// tv.mjs ends a failed run with {"erro","mensagem"} as the last line of stderr.
 function failureFrom({ spawnError }, stderr) {
   const line = lastLine(stderr);
   try {
@@ -79,6 +79,7 @@ class AcBridge extends EventEmitter {
   #pending = new Map();
   #inflight = new Map();
   #oneShots = [];
+  #settleTimer = null;
   #queued = [];
   #job = null;
   #run = RunKind.Idle;
@@ -94,7 +95,7 @@ class AcBridge extends EventEmitter {
   #devices = null;
   #disposed = false;
 
-  constructor({ script = AC_SCRIPT } = {}) {
+  constructor({ script = TV_SCRIPT } = {}) {
     super();
     this.#script = script;
   }
@@ -109,7 +110,6 @@ class AcBridge extends EventEmitter {
   }
 
   view() {
-    const sendable = this.#sendable();
     const device = this.#confirmed && {
       ...this.#confirmed,
       ...Object.fromEntries(this.#inflight),
@@ -122,9 +122,10 @@ class AcBridge extends EventEmitter {
         this.#run === RunKind.Use ||
         this.#isQueued(RunKind.Use) ||
         (this.#run === RunKind.Apply && this.#job.deviceId === this.#confirmed?.id) ||
-        sendable.size > 0 ||
+        this.#pending.size > 0 ||
         this.#oneShots.length > 0,
-      held: [...this.#pending.keys()].filter((key) => !sendable.has(key)),
+      // Nothing is held back any more: every change is sent as soon as the unit is free.
+      held: [],
       updatedAt: this.#updatedAt,
       login: this.#login,
       devices: this.#devices,
@@ -136,35 +137,36 @@ class AcBridge extends EventEmitter {
   // Comparing it with the old unit's state and sending it to the new one would be wrong either way, so it is dropped.
   set(key, value, { force = false } = {}) {
     if (this.#disposed || this.#switching() || !SETTABLE_KEYS.has(key)) return;
-    const wanted = normalized(key, value);
-    const alreadyThere = !force && this.#confirmed?.[key] === wanted && !this.#inflight.has(key);
+    const alreadyThere = !force && this.#confirmed?.[key] === value && !this.#inflight.has(key);
     if (alreadyThere) this.#pending.delete(key);
-    else this.#pending.set(key, wanted);
+    else this.#pending.set(key, value);
     this.#error = null;
     this.#changed();
     this.#scheduleFlush();
   }
 
-  run(action) {
+  // Every press is kept on its own and sent in order: ten presses of the same key are ten commands.
+  run(action, arg) {
     if (this.#disposed || this.#switching() || !ONE_SHOT_ACTIONS.has(action)) return;
-    if (!this.#oneShots.includes(action)) this.#oneShots.push(action);
+    const takesArg = ARG_ONE_SHOT_ACTIONS.has(action);
+    if (takesArg && (arg === undefined || arg === null || arg === '')) return;
+    this.#oneShots.push(takesArg ? [action, String(arg)] : [action]);
     this.#error = null;
     this.#changed();
-    this.#scheduleFlush();
+    // A press has nothing to be merged with, so it goes out at once.
+    this.#scheduleFlush(0);
   }
 
   // Sends changes to one unit in a run of its own, after whatever is in flight, whether or not it is the active one.
   // The active unit never changes here, and the view only follows the result when it is that unit's.
   apply(deviceId, changes) {
     const wanted = new Map(
-      Object.entries(changes ?? {})
-        .filter(([key, value]) => SETTABLE_KEYS.has(key) && value != null)
-        .map(([key, value]) => [key, normalized(key, value)]),
+      Object.entries(changes ?? {}).filter(([key, value]) => SETTABLE_KEYS.has(key) && value != null),
     );
     if (this.#disposed || wanted.size === 0) return Promise.resolve({ ok: false, reason: 'desconhecido' });
     if (typeof deviceId !== 'string' || deviceId === '') return Promise.resolve({ ok: false, reason: 'aparelho' });
     return new Promise((resolve) => {
-      this.#enqueue({ kind: RunKind.Apply, tokens: ['aparelho', deviceId, ...arTokens(wanted)], deviceId, resolve });
+      this.#enqueue({ kind: RunKind.Apply, tokens: ['aparelho', deviceId, ...tvTokens(wanted)], deviceId, resolve });
     });
   }
 
@@ -214,12 +216,6 @@ class AcBridge extends EventEmitter {
     this.#kill(KillReason.Dispose);
   }
 
-  // The unit ignores climate changes while it is off, so those wait for a power-on.
-  #sendable() {
-    const willBeOn = this.#pending.get('ligado') ?? Boolean(this.#confirmed?.ligado);
-    return new Map([...this.#pending].filter(([key]) => willBeOn || !CLIMATE_KEYS.has(key)));
-  }
-
   #isQueued(kind) {
     return this.#queued.some((job) => job.kind === kind);
   }
@@ -237,20 +233,26 @@ class AcBridge extends EventEmitter {
     this.#changed();
   }
 
-  #scheduleFlush() {
+  #scheduleFlush(delay = FLUSH_DELAY_MS) {
     clearTimeout(this.#flushTimer);
-    this.#flushTimer = setTimeout(() => this.#flush(), FLUSH_DELAY_MS);
+    this.#flushTimer = setTimeout(() => this.#flush(), delay);
+  }
+
+  // Presses come back without a status; one read once they stop shows what they did.
+  #refreshAfterPresses() {
+    clearTimeout(this.#settleTimer);
+    this.#settleTimer = setTimeout(() => this.refresh(), PRESS_SETTLE_MS);
   }
 
   #flush() {
     if (this.#disposed || this.#run !== RunKind.Idle) return;
-    const changes = this.#sendable();
-    const actions = this.#oneShots;
+    const changes = new Map(this.#pending);
+    const actions = this.#oneShots.flat();
     if (changes.size === 0 && actions.length === 0) return;
     for (const key of changes.keys()) this.#pending.delete(key);
     this.#oneShots = [];
     this.#inflight = changes;
-    this.#start({ kind: RunKind.Command, tokens: [...arTokens(changes), ...actions] });
+    this.#start({ kind: RunKind.Command, tokens: [...tvTokens(changes), ...actions] });
   }
 
   #start(job) {
@@ -344,6 +346,10 @@ class AcBridge extends EventEmitter {
       this.#devices = result.aparelhos;
       return;
     }
+    if (result.enviado !== undefined) {
+      this.#refreshAfterPresses();
+      return;
+    }
     if (!shown) return;
     const { pendente = [], ...device } = result;
     this.#confirmed = device;
@@ -370,7 +376,8 @@ class AcBridge extends EventEmitter {
   #next() {
     const job = this.#queued.shift();
     if (job) this.#start(job);
-    else if (this.#sendable().size > 0 || this.#oneShots.length > 0) this.#scheduleFlush();
+    else if (this.#oneShots.length > 0) this.#scheduleFlush(0);
+    else if (this.#pending.size > 0) this.#scheduleFlush();
   }
 
   #changed() {

@@ -3,9 +3,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { AcBridge } = require('./bridge');
 const { appMenuTemplate } = require('./lib/app-menu');
-const { isValidAction, isValidChange } = require('./lib/commands');
-const { Favorites } = require('./lib/favorites');
-const { History } = require('./lib/history');
+const { isValidChange, isValidRun } = require('./lib/commands');
 const { createI18n, resolveLanguage } = require('./lib/i18n');
 const { Notifier } = require('./lib/notifications');
 const { Scheduler } = require('./lib/scheduler');
@@ -25,13 +23,11 @@ const REOPEN_GUARD_MS = 300;
 const TRAY_SETTLE_MS = 100;
 const QUIT_GRACE_MS = 3_000;
 const QUIT_POLL_MS = 100;
-const LOGIN_ITEM_NAME = 'WindFree';
+const LOGIN_ITEM_NAME = 'TV Remote';
 const LAUNCH_AGENT_LABEL = 'io.github.kevinnfsilva.tvremote';
 
 const bridge = new AcBridge();
 let settings;
-let history;
-let favorites;
 let scheduler;
 let notifier;
 let shortcut;
@@ -230,16 +226,14 @@ function schedulePoll() {
 
 function updateMenu(force = false) {
   const view = bridge.view();
-  const { favoritos } = settings.get();
   const autostart = isAutostartEnabled();
   const update = updates.notice;
-  const key = JSON.stringify([view.device?.ligado, Boolean(view.device), view.login, favoritos.map(({ id, nome }) => [id, nome]), autostart, update?.versao, i18n.language]);
+  const key = JSON.stringify([view.device?.ligado, view.device?.mudo, Boolean(view.device), view.login, autostart, update?.versao, i18n.language]);
   if (!force && key === menuKey) return;
   menuKey = key;
   contextMenu = Menu.buildFromTemplate(
     menuTemplate({
       view,
-      favoritos,
       autostart,
       update,
       i18n,
@@ -249,7 +243,7 @@ function updateMenu(force = false) {
         login: () => bridge.login(),
         cancelLogin: () => bridge.cancelLogin(),
         setPower: (on) => setByHand('ligado', on),
-        applyFavorite: applyFavoriteByHand,
+        setMute: (muted) => setByHand('mudo', muted),
         refresh: () => bridge.refresh(),
         setAutostart: (enabled) => settings.update({ autostart: enabled }),
         quit: () => app.quit(),
@@ -265,11 +259,6 @@ function setByHand(key, value) {
   if (!isValidChange(key, value)) return;
   if (key === 'ligado') scheduler.cancelRetries(bridge.view().device?.id);
   bridge.set(key, value);
-}
-
-function applyFavoriteByHand(id) {
-  scheduler.cancelRetries(bridge.view().device?.id);
-  return favorites.apply(id);
 }
 
 // A change made a moment ago may still be waiting to go out or be on its way; the bridge would kill it on the way out.
@@ -333,20 +322,17 @@ function start() {
   i18n = createI18n(languageSetting());
   updates = new UpdateChecker({ repository, version: app.getVersion() });
   if (IS_MAC) applyDock(settings.get().dock);
-  history = new History(path.join(app.getPath('userData'), 'historico.json'));
-  favorites = new Favorites({ settings, bridge });
   notifier = new Notifier({ settings, bridge, onClick: showPanel, i18n: () => i18n });
   scheduler = new Scheduler({
     settings,
     bridge,
-    favorites,
     notify: (aparelho, key) => notifier.alert(aparelho.nome, key),
     file: path.join(app.getPath('userData'), 'pendentes.json'),
   });
 
   panel = createPanel();
   tray = new Tray(nativeImage.createEmpty());
-  tray.setToolTip('WindFree');
+  tray.setToolTip('TV Remote');
   tray.on('click', togglePanel);
   if (IS_MAC) {
     tray.setIgnoreDoubleClickEvents(true);
@@ -361,7 +347,6 @@ function start() {
     panel.webContents.send('state', view);
     tray.setToolTip(tooltipFor(view, i18n));
     updateMenu();
-    history.record(view);
     notifier.check(view);
   });
   updates.on('change', (notice) => {
@@ -380,19 +365,20 @@ function start() {
   ipcMain.on('ac:use-device', (_event, id) => {
     if (typeof id === 'string') bridge.useDevice(id);
   });
-  ipcMain.on('ac:run', (_event, action) => {
-    if (isValidAction(action)) bridge.run(action);
+  ipcMain.on('ac:run', (_event, action, arg) => {
+    if (isValidRun(action, arg)) bridge.run(action, arg);
   });
   ipcMain.handle('settings:get', () => settings.get());
-  ipcMain.handle('settings:update', (_event, patch) => settings.update(patch));
-  ipcMain.handle('favorite:save', (_event, nome) => favorites.save(nome));
-  ipcMain.handle('favorite:apply', (_event, id) => applyFavoriteByHand(id));
-  ipcMain.handle('favorite:delete', (_event, id) => favorites.remove(id));
+  ipcMain.handle('settings:update', (_event, patch) => {
+    if (!patch || typeof patch !== 'object' || Array.isArray(patch)) return settings.update(patch);
+    // The timer and schedules only change through their own handlers, which bind them to the active TV.
+    const { timer: _timer, agendas: _agendas, ...rest } = patch;
+    return settings.update(rest);
+  });
   ipcMain.handle('timer:set', (_event, acao, minutos) => scheduler.setTimer(acao, minutos));
   ipcMain.handle('timer:clear', () => scheduler.clearTimer());
   ipcMain.handle('schedule:save', (_event, agenda) => scheduler.saveSchedule(agenda));
   ipcMain.handle('schedule:delete', (_event, id) => scheduler.deleteSchedule(id));
-  ipcMain.handle('history:get', () => history.get(bridge.view().device?.id));
   ipcMain.on('update:open', openUpdate);
   ipcMain.on('panel:hide', hidePanel);
   ipcMain.on('tray:icon', (_event, images) => {
@@ -427,7 +413,6 @@ function start() {
     notifier.stop();
     updates.stop();
     shortcut.dispose();
-    history.flush();
     bridge.dispose();
   });
 

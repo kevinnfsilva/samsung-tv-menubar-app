@@ -49,7 +49,7 @@ function prefPatch(path, value) {
 
 // "Automatic" first, then every language the panel has a dictionary for, each named in its own language.
 function languageOptions() {
-  const languages = Object.entries(WindFreeLocales).map(([code, messages]) => ({ value: code, label: messages['meta.name'] }));
+  const languages = Object.entries(AppLocales).map(([code, messages]) => ({ value: code, label: messages['meta.name'] }));
   return [{ value: 'auto', label: t('prefs.languageAuto') }, ...languages];
 }
 

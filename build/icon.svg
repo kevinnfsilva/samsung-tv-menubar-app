@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  TV Remote app icon, 1024 x 1024 master. Regenerate icon.png and icon.icns with: node scripts/make-icon.mjs
+  macOS grid: 824 x 824 body centred on the canvas, corner radius 185, soft shadow kept inside the canvas.
+  The TV follows the panel's TV: a thin light bezel, a frost-blue screen (#a7d7f1 family), a short neck and a flat foot.
+  There are two drawings: #art for 64 px and up, and #art-small (hidden in an editor) for the 16 and 32 px sizes.
+-->
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <title>TV Remote</title>
+  <style>
+    /* Rendered at 32 px or smaller, the icon swaps to the heavier drawing made for the pixel grid. */
+    @media (max-width: 32px) {
+      #art { display: none; }
+      #art-small { display: inline; }
+    }
+  </style>
+  <defs>
+    <!-- Squircle: the 824 square with radius 185 and 60% corner smoothing, so each corner is curve, arc, curve -->
+    <path id="body" d="M628 100 C731.61 100 783.41 100 822.99 120.16 A185 185 0 0 1 903.84 201.01 C924 240.59 924 292.39 924 396 V628 C924 731.61 924 783.41 903.84 822.99 A185 185 0 0 1 822.99 903.84 C783.41 924 731.61 924 628 924 H396 C292.39 924 240.59 924 201.01 903.84 A185 185 0 0 1 120.16 822.99 C100 783.41 100 731.61 100 628 V396 C100 292.39 100 240.59 120.16 201.01 A185 185 0 0 1 201.01 120.16 C240.59 100 292.39 100 396 100 Z" />
+    <clipPath id="clip-body">
+      <use xlink:href="#body" />
+    </clipPath>
+
+    <radialGradient id="g-top">
+      <stop offset="0" stop-color="#1c2128" />
+      <stop offset="1" stop-color="#1c2128" stop-opacity="0" />
+    </radialGradient>
+    <radialGradient id="g-spot">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.08" />
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0" />
+    </radialGradient>
+    <radialGradient id="g-glow">
+      <stop offset="0" stop-color="#a7d7f1" stop-opacity="0.2" />
+      <stop offset="0.5" stop-color="#a7d7f1" stop-opacity="0.08" />
+      <stop offset="1" stop-color="#a7d7f1" stop-opacity="0" />
+    </radialGradient>
+    <linearGradient id="g-edge" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.2" />
+      <stop offset="0.35" stop-color="#ffffff" stop-opacity="0.08" />
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0.05" />
+    </linearGradient>
+
+    <linearGradient id="g-unit" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff" />
+      <stop offset="0.5" stop-color="#f2f4f6" />
+      <stop offset="1" stop-color="#dde2e7" />
+    </linearGradient>
+    <linearGradient id="g-curve" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#0d1a26" stop-opacity="0.14" />
+      <stop offset="0.09" stop-color="#0d1a26" stop-opacity="0" />
+      <stop offset="0.88" stop-color="#0d1a26" stop-opacity="0" />
+      <stop offset="1" stop-color="#0d1a26" stop-opacity="0.16" />
+    </linearGradient>
+    <linearGradient id="g-under" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#c9d0d7" />
+      <stop offset="1" stop-color="#9ea7b1" />
+    </linearGradient>
+    <linearGradient id="g-frost" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#d6eef9" />
+      <stop offset="0.5" stop-color="#a7d7f1" />
+      <stop offset="1" stop-color="#7dc0e8" />
+    </linearGradient>
+    <linearGradient id="g-sheen" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.55" />
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0" />
+    </linearGradient>
+
+    <filter id="f-shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feGaussianBlur stdDeviation="13" />
+    </filter>
+    <filter id="f-contact" x="-20%" y="-200%" width="140%" height="500%">
+      <feGaussianBlur stdDeviation="10" />
+    </filter>
+    <filter id="f-screen-glow" x="-30%" y="-40%" width="160%" height="180%">
+      <feGaussianBlur stdDeviation="26" />
+    </filter>
+  </defs>
+
+  <!-- Body: graphite tile with the panel's top highlight and hairline edge -->
+  <use xlink:href="#body" transform="translate(0 12)" fill="#000000" opacity="0.38" filter="url(#f-shadow)" />
+  <use xlink:href="#body" fill="#101317" />
+  <g clip-path="url(#clip-body)">
+    <ellipse cx="512" cy="100" rx="771" ry="356" fill="url(#g-top)" />
+    <ellipse cx="512" cy="400" rx="430" ry="240" fill="url(#g-spot)" />
+    <ellipse cx="512" cy="640" rx="400" ry="230" fill="url(#g-glow)" />
+    <use xlink:href="#body" fill="none" stroke="url(#g-edge)" stroke-width="6" />
+  </g>
+
+  <!-- Artwork for 64 px and up: a thin-bezel TV with a frost-blue screen on a short stand -->
+  <g id="art">
+    <rect x="216" y="316" width="592" height="333" rx="18" fill="#a7d7f1" opacity="0.45" filter="url(#f-screen-glow)" />
+    <ellipse cx="512" cy="726" rx="210" ry="9" fill="#000000" opacity="0.6" filter="url(#f-contact)" />
+    <path d="M476 668 H548 L580 712 H444 Z" fill="url(#g-under)" />
+    <rect x="356" y="708" width="312" height="16" rx="8" fill="url(#g-under)" />
+    <rect x="200" y="300" width="624" height="377" rx="44" fill="url(#g-unit)" />
+    <rect x="200" y="300" width="624" height="377" rx="44" fill="url(#g-curve)" />
+    <rect x="216" y="316" width="592" height="333" rx="18" fill="url(#g-frost)" />
+    <path d="M216 334 Q216 316 234 316 H790 Q808 316 808 334 V398 Q512 436 216 396 Z" fill="url(#g-sheen)" />
+    <circle cx="512" cy="663" r="5" fill="#9ea7b1" />
+  </g>
+
+  <!-- Artwork for 16 and 32 px: the same TV with every edge on a multiple of 64, which is a whole pixel at 16 px and 32 px -->
+  <g id="art-small" display="none">
+    <rect x="320" y="704" width="384" height="64" fill="#c9d0d7" />
+    <rect x="448" y="640" width="128" height="64" fill="#c9d0d7" />
+    <rect x="192" y="256" width="640" height="384" rx="64" fill="url(#g-unit)" />
+    <rect x="256" y="320" width="512" height="256" fill="#a7d7f1" />
+  </g>
+</svg>
